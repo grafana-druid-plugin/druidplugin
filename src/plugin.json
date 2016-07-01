@@ -1,0 +1,18 @@
+{
+  "type": "datasource",
+  "name": "Druid",
+  "id": "druid",
+
+  "metrics": true,
+
+  "info": {
+    "author": {
+      "name": "Grafana Project",
+      "url": "http://grafana.org"
+    },
+    "logos": {
+      "small": "img/druid_logo.png",
+      "large": "img/druid_logo.png"
+    }
+  }
+}
