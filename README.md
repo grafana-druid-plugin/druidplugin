@@ -36,7 +36,7 @@ directory.
 
 ## Configuration
 
-Add new Druid Datasource with url to Druid broker instance. For example http://druid.internal
+Add new Druid Datasource with url to Druid broker endpoint. 
 
 ## Status
 
