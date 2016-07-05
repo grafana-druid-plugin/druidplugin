@@ -1,4 +1,4 @@
-Grafana plugin for [Druid](http://druid.io/) real-time OLAP database works for Grafana 3.0.
+# Grafana plugin for [Druid](http://druid.io/) real-time OLAP database works for Grafana 3.0.
 
 ## How to use the plugin
 
