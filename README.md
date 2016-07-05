@@ -44,3 +44,24 @@ This plugin is built on the top of an existing Druid plugin (https://github.com/
 
 Lot of features might still not be implemented. Your contributions are welcome.
 
+## Plugin development history
+
+This plugin was originally developed by Quantiply Corporation: Github link (Supported for Grafana versions < 2.5): https://github.com/grafana/grafana-plugins/tree/master/datasources/druid
+
+This plugin was further enhanced by Carl Bergquist (https://github.com/grafana/grafana/pull/3328) (to support it on Grafana version 2.5 & 2.6).
+
+I cloned the source from the Pull Request by Carl Bergquist and changed the plugin to have it work on Grafana-3.0.
+
+All the credits for the original code and enahcement to 2.5 goes to Quantiply and Carl Bergquist. 
+
+Opensourcing all the changes done to the plugin to support Grafana-3.0.
+
+
+
+
+
+https://github.com/grafana/grafana-plugins/tree/master/datasources/druid by 
+
+
+
+
