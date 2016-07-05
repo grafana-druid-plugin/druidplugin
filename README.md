@@ -4,15 +4,17 @@ Grafana plugin for [Druid](http://druid.io/) real-time OLAP database works for G
 
 ### Using druid plugin from Grafana executable:
 
-1. Go the following directory in the grafana executable:
+1. Download grafana-3.0.4 tar executable: https://grafanarel.s3.amazonaws.com/builds/grafana-3.0.4-1464167696.linux-x64.tar.gz
+
+2. Go the following directory in the grafana executable:
 public/app/plugins/datasource
 
-2. Create a directory named: "druid"
+3. Create a directory named: "druid"
 
-3. Copy all the files in "https://github.com/grafana-druid-plugin/druidplugin/tree/master/dist" to the "druid" 
+4. Copy all the files in "https://github.com/grafana-druid-plugin/druidplugin/tree/master/dist" to the "druid" 
 directory.
 
-4. Restart grafana
+5. Restart grafana
 
 
 ### Using druid plugin from Grafana source:
