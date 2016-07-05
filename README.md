@@ -46,7 +46,7 @@ Lot of features might still not be implemented. Your contributions are welcome.
 
 ## Plugin development history
 
-This plugin was originally developed by Quantiply Corporation: Github link (Supported for Grafana versions < 2.5): https://github.com/grafana/grafana-plugins/tree/master/datasources/druid
+This plugin was originally developed by Quantiply Corporation (Supported for Grafana versions < 2.5): https://github.com/grafana/grafana-plugins/tree/master/datasources/druid
 
 This plugin was further enhanced by Carl Bergquist (https://github.com/grafana/grafana/pull/3328) (to support it on Grafana version 2.5 & 2.6).
 
