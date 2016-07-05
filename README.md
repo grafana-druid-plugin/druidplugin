@@ -2,7 +2,7 @@ Grafana plugin for [Druid](http://druid.io/) real-time OLAP database works for G
 
 ## How to use the plugin
 
-Using druid plugin from Grafana executable:
+# Using druid plugin from Grafana executable:
 
 1. Go the following directory in the grafana executable:
 public/app/plugins/datasource
@@ -15,7 +15,7 @@ directory.
 4. Restart grafana
 
 
-Using druid plugin from Grafana source:
+# Using druid plugin from Grafana source:
 
 1. Follow instructions to build Grafana from the source:
 http://docs.grafana.org/project/building_from_source/
