@@ -1,8 +1,11 @@
-# Grafana plugin for [Druid](http://druid.io/) real-time OLAP database for Grafana 3.0.
+# Grafana plugin for [Druid](http://druid.io/) real-time OLAP database
 
 ![Screenshot](https://raw.githubusercontent.com/grafana-druid-plugin/druidplugin/master/img/AddDataSource.png)
 ![Screenshot](https://raw.githubusercontent.com/grafana-druid-plugin/druidplugin/master/img/ListDataSource.png)
 ![Screenshot](https://raw.githubusercontent.com/grafana-druid-plugin/druidplugin/master/img/DruidPanel.png)
+
+## Requires
+* **Grafana** > 3.x.x
 
 ## Status
 
