@@ -1,5 +1,3 @@
-![Druid Plugin Logo](https://raw.githubusercontent.com/grafana-druid-plugin/druidplugin/master/img/druid_logo.png)
-
 # Grafana plugin for [Druid](http://druid.io/) real-time OLAP database for Grafana 3.0.
 
 ![Screenshot](https://raw.githubusercontent.com/grafana-druid-plugin/druidplugin/master/img/AddDataSource.png)
