@@ -1,21 +1,23 @@
-Grafana plugin for [Druid](http://druid.io/) real-time OLAP database works for Grafana 3.0.
+# Grafana plugin for [Druid](http://druid.io/) real-time OLAP database works for Grafana 3.0.
 
 ## How to use the plugin
 
-Using druid plugin from Grafana executable:
+### Using druid plugin from Grafana executable:
 
-1. Go the following directory in the grafana executable:
+1. Download grafana-3.0.4 tar executable: https://grafanarel.s3.amazonaws.com/builds/grafana-3.0.4-1464167696.linux-x64.tar.gz
+
+2. Go the following directory in the grafana executable:
 public/app/plugins/datasource
 
-2. Create a directory named: "druid"
+3. Create a directory named: "druid"
 
-3. Copy all the files in "https://github.com/grafana-druid-plugin/druidplugin/tree/master/dist" to the "druid" 
+4. Copy all the files in "https://github.com/grafana-druid-plugin/druidplugin/tree/master/dist" to the "druid" 
 directory.
 
-4. Restart grafana
+5. Restart grafana
 
 
-Using druid plugin from Grafana source:
+### Using druid plugin from Grafana source:
 
 1. Follow instructions to build Grafana from the source:
 http://docs.grafana.org/project/building_from_source/
@@ -34,7 +36,7 @@ directory.
 
 ## Configuration
 
-Add new Druid Datasource with url to Druid broker instance. For example http://druid.internal
+Add new Druid Datasource with url to Druid broker endpoint. 
 
 ## Status
 
@@ -42,3 +44,14 @@ This plugin is built on the top of an existing Druid plugin (https://github.com/
 
 Lot of features might still not be implemented. Your contributions are welcome.
 
+## Plugin development history
+
+This plugin was originally developed by Quantiply Corporation (Supported for Grafana versions < 2.5): https://github.com/grafana/grafana-plugins/tree/master/datasources/druid
+
+This plugin was further enhanced by Carl Bergquist (https://github.com/grafana/grafana/pull/3328) (to support it on Grafana version 2.5 & 2.6).
+
+I cloned the source from the Pull Request by Carl Bergquist and changed the plugin to have it work on Grafana-3.0.
+
+All the credits for the original code and enahcement to 2.5 goes to Quantiply and Carl Bergquist. 
+
+Opensourcing all the changes done to the plugin to support Grafana-3.0.
