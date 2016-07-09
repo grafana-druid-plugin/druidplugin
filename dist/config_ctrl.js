@@ -7,7 +7,7 @@ System.register([], function(exports_1) {
             DruidConfigCtrl = (function () {
                 function DruidConfigCtrl() {
                 }
-                DruidConfigCtrl.templateUrl = 'public/app/plugins/datasource/druid/partials/config.html';
+                DruidConfigCtrl.templateUrl = 'public/app/plugins/datasource/abhisant-druid-datasource/partials/config.html';
                 return DruidConfigCtrl;
             })();
             exports_1("DruidConfigCtrl", DruidConfigCtrl);

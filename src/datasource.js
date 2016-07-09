@@ -24,14 +24,13 @@ function (angular, _, dateMath, moment) {
 
   /** @ngInject */
   function DruidDatasource(instanceSettings, $q, backendSrv, templateSrv) {
-    this.type = 'druid';
+    this.type = 'druid-datasource';
     this.url = instanceSettings.url;
     this.name = instanceSettings.name;
     this.basicAuth = instanceSettings.basicAuth;
     instanceSettings.jsonData = instanceSettings.jsonData || {};
     this.supportMetrics = true;
 
-   //changes:druid start
     function replaceTemplateValues(obj, attrList) {
       var substitutedVals = attrList.map(function (attr) {
         return templateSrv.replace(obj[attr]);

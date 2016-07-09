@@ -4,6 +4,6 @@ import angular from 'angular';
 import _ from 'lodash';
 
 export class DruidConfigCtrl {
-  static templateUrl = 'public/app/plugins/datasource/druid/partials/config.html';
+  static templateUrl = 'public/app/plugins/datasource/abhisant-druid-datasource/partials/config.html';
   current: any;
 }
