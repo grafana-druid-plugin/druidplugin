@@ -1,1 +1,1 @@
-{"version":3,"file":"module.js","sourceRoot":"","sources":["../../../../../public/app/plugins/datasource/abhisant-druid-datasource/module.ts"],"names":[],"mappings":";;;;;;;;;;;;;;YAKqB,qDAAU;YACX,mDAAS;YACR,sDAAU"}
+{"version":3,"file":"module.js","sourceRoot":"","sources":["../../../../../public/app/plugins/datasource/druid/module.ts"],"names":[],"mappings":";;;;;;;;;;;;;;YAKqB,qDAAU;YACX,mDAAS;YACR,sDAAU"}
