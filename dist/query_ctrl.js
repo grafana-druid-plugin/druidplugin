@@ -29,20 +29,20 @@ System.register(['lodash', 'app/plugins/sdk'], function(exports_1) {
                         "select": this.validateSelectQuery.bind(this)
                     };
                     this.filterValidators = {
-                        "selector": this.validateSelectorFilter,
-                        "regex": this.validateRegexFilter,
-                        "javascript": this.validateJavascriptFilter
+                        "selector": this.validateSelectorFilter.bind(this),
+                        "regex": this.validateRegexFilter.bind(this),
+                        "javascript": this.validateJavascriptFilter.bind(this)
                     };
                     this.aggregatorValidators = {
                         "count": this.validateCountAggregator,
-                        "longSum": lodash_1.default.partial(this.validateSimpleAggregator, 'longSum'),
-                        "doubleSum": lodash_1.default.partial(this.validateSimpleAggregator, 'doubleSum'),
-                        "approxHistogramFold": this.validateApproxHistogramFoldAggregator,
-                        "hyperUnique": lodash_1.default.partial(this.validateSimpleAggregator, 'hyperUnique')
+                        "longSum": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
+                        "doubleSum": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
+                        "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
+                        "hyperUnique": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
                     };
                     this.postAggregatorValidators = {
-                        "arithmetic": this.validateArithmeticPostAggregator,
-                        "quantile": this.validateQuantilePostAggregator
+                        "arithmetic": this.validateArithmeticPostAggregator.bind(this),
+                        "quantile": this.validateQuantilePostAggregator.bind(this)
                     };
                     this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
                     this.defaultQueryType = "timeseries";

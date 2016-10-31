@@ -30,20 +30,20 @@ export class DruidQueryCtrl extends QueryCtrl {
       "select": this.validateSelectQuery.bind(this)
     };
     filterValidators = {
-      "selector": this.validateSelectorFilter,
-      "regex": this.validateRegexFilter,
-      "javascript": this.validateJavascriptFilter
+      "selector": this.validateSelectorFilter.bind(this),
+      "regex": this.validateRegexFilter.bind(this),
+      "javascript": this.validateJavascriptFilter.bind(this)
     };
     aggregatorValidators = {
       "count": this.validateCountAggregator,
-      "longSum": _.partial(this.validateSimpleAggregator, 'longSum'),
-      "doubleSum": _.partial(this.validateSimpleAggregator, 'doubleSum'),
-      "approxHistogramFold": this.validateApproxHistogramFoldAggregator,
-      "hyperUnique": _.partial(this.validateSimpleAggregator, 'hyperUnique')
+      "longSum": _.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
+      "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
+      "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
+      "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
     };
     postAggregatorValidators = {
-      "arithmetic": this.validateArithmeticPostAggregator,
-      "quantile": this.validateQuantilePostAggregator
+      "arithmetic": this.validateArithmeticPostAggregator.bind(this),
+      "quantile": this.validateQuantilePostAggregator.bind(this)
     };
 
     arithmeticPostAggregatorFns = {'+': null, '-': null, '*': null, '/': null};

@@ -25,20 +25,20 @@ export declare class DruidQueryCtrl extends QueryCtrl {
         "select": any;
     };
     filterValidators: {
-        "selector": (target: any) => string;
-        "regex": (target: any) => string;
-        "javascript": (target: any) => string;
+        "selector": any;
+        "regex": any;
+        "javascript": any;
     };
     aggregatorValidators: {
         "count": (target: any) => string;
         "longSum": any;
         "doubleSum": any;
-        "approxHistogramFold": (target: any) => string;
+        "approxHistogramFold": any;
         "hyperUnique": any;
     };
     postAggregatorValidators: {
-        "arithmetic": (target: any) => string;
-        "quantile": (target: any) => string;
+        "arithmetic": any;
+        "quantile": any;
     };
     arithmeticPostAggregatorFns: {
         '+': any;
