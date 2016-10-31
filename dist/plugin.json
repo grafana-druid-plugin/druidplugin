@@ -1,4 +1,5 @@
-tasource",
+{
+  "type": "datasource",
   "name": "Druid",
   "id": "abhisant-druid-datasource",
 
