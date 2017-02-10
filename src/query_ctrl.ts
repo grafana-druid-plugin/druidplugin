@@ -1,8 +1,8 @@
-///<reference path="../../../headers/common.d.ts" />
+///<reference path="../headers/common.d.ts" />
 
 import _ from 'lodash';
 import kbn from 'app/core/utils/kbn';
-import {QueryCtrl} from 'app/plugins/sdk';
+import {QueryCtrl} from './sdk/sdk';
 
 export class DruidQueryCtrl extends QueryCtrl {
   static templateUrl = 'partials/query.editor.html';
@@ -22,6 +22,8 @@ export class DruidQueryCtrl extends QueryCtrl {
   postAggregatorTypes: any;
   arithmeticPostAggregator: any;
   customGranularity: any;
+  target: any;
+  datasource: any;
 
     queryTypeValidators = {
       "timeseries": _.noop.bind(this),
