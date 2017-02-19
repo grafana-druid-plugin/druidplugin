@@ -474,7 +474,7 @@ function (angular, _, dateMath, moment) {
           the _.assign() callback will get called for every new val
           that we add to the final object.
         */
-        return _.assign(prev, curr, function (pVal, cVal) {
+        return _.assignWith(prev, curr, function (pVal, cVal) {
           if (pVal) {
             pVal.push(cVal);
             return pVal;
