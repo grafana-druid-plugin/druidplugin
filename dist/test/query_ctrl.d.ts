@@ -1,4 +1,4 @@
-/// <reference path="../headers/common.d.ts" />
+/// <reference path="../../headers/common.d.ts" />
 import { QueryCtrl } from './sdk/sdk';
 export declare class DruidQueryCtrl extends QueryCtrl {
     static templateUrl: string;
