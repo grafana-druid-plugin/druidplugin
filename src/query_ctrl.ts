@@ -520,7 +520,7 @@ export class DruidQueryCtrl extends QueryCtrl {
 
       if (this.target.shouldOverrideGranularity) {
         if (this.target.customGranularity) {
-          if (!_.contains(this.customGranularity, this.target.customGranularity)) {
+          if (!_.includes(this.customGranularity, this.target.customGranularity)) {
             errs.customGranularity = "Invalid granularity.";
           }
         } else {
