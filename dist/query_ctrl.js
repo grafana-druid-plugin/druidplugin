@@ -1,5 +1,5 @@
-///<reference path="../../../headers/common.d.ts" />
-System.register(['lodash', 'app/plugins/sdk'], function(exports_1) {
+///<reference path="../headers/common.d.ts" />
+System.register(['lodash', './sdk/sdk'], function(exports_1) {
     var __extends = (this && this.__extends) || function (d, b) {
         for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
         function __() { this.constructor = d; }
@@ -23,7 +23,7 @@ System.register(['lodash', 'app/plugins/sdk'], function(exports_1) {
                     var _this = this;
                     _super.call(this, $scope, $injector);
                     this.queryTypeValidators = {
-                        "timeseries": lodash_1.default.noop.bind(this),
+                        "timeseries": lodash_1["default"].noop.bind(this),
                         "groupBy": this.validateGroupByQuery.bind(this),
                         "topN": this.validateTopNQuery.bind(this),
                         "select": this.validateSelectQuery.bind(this)
@@ -35,10 +35,10 @@ System.register(['lodash', 'app/plugins/sdk'], function(exports_1) {
                     };
                     this.aggregatorValidators = {
                         "count": this.validateCountAggregator,
-                        "longSum": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
-                        "doubleSum": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
+                        "longSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'longSum'),
+                        "doubleSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
                         "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
-                        "hyperUnique": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
+                        "hyperUnique": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
                     };
                     this.postAggregatorValidators = {
                         "arithmetic": this.validateArithmeticPostAggregator.bind(this),
@@ -57,11 +57,11 @@ System.register(['lodash', 'app/plugins/sdk'], function(exports_1) {
                     if (!this.target.queryType) {
                         this.target.queryType = this.defaultQueryType;
                     }
-                    this.queryTypes = lodash_1.default.keys(this.queryTypeValidators);
-                    this.filterTypes = lodash_1.default.keys(this.filterValidators);
-                    this.aggregatorTypes = lodash_1.default.keys(this.aggregatorValidators);
-                    this.postAggregatorTypes = lodash_1.default.keys(this.postAggregatorValidators);
-                    this.arithmeticPostAggregator = lodash_1.default.keys(this.arithmeticPostAggregatorFns);
+                    this.queryTypes = lodash_1["default"].keys(this.queryTypeValidators);
+                    this.filterTypes = lodash_1["default"].keys(this.filterValidators);
+                    this.aggregatorTypes = lodash_1["default"].keys(this.aggregatorValidators);
+                    this.postAggregatorTypes = lodash_1["default"].keys(this.postAggregatorValidators);
+                    this.arithmeticPostAggregator = lodash_1["default"].keys(this.arithmeticPostAggregatorFns);
                     this.customGranularity = this.customGranularities;
                     this.errors = this.validateTarget();
                     if (!this.target.currentFilter) {
@@ -259,25 +259,25 @@ System.register(['lodash', 'app/plugins/sdk'], function(exports_1) {
                     this.targetBlur();
                 };
                 DruidQueryCtrl.prototype.clearCurrentPostAggregator = function () {
-                    this.target.currentPostAggregator = lodash_1.default.clone(this.defaultPostAggregator);
+                    this.target.currentPostAggregator = lodash_1["default"].clone(this.defaultPostAggregator);
                     ;
                     this.addPostAggregatorMode = false;
                     this.targetBlur();
                 };
                 DruidQueryCtrl.prototype.isValidFilterType = function (type) {
-                    return lodash_1.default.has(this.filterValidators, type);
+                    return lodash_1["default"].has(this.filterValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidAggregatorType = function (type) {
-                    return lodash_1.default.has(this.aggregatorValidators, type);
+                    return lodash_1["default"].has(this.aggregatorValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidPostAggregatorType = function (type) {
-                    return lodash_1.default.has(this.postAggregatorValidators, type);
+                    return lodash_1["default"].has(this.postAggregatorValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidQueryType = function (type) {
-                    return lodash_1.default.has(this.queryTypeValidators, type);
+                    return lodash_1["default"].has(this.queryTypeValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidArithmeticPostAggregatorFn = function (fn) {
-                    return lodash_1.default.has(this.arithmeticPostAggregator, fn);
+                    return lodash_1["default"].has(this.arithmeticPostAggregator, fn);
                 };
                 DruidQueryCtrl.prototype.validateMaxDataPoints = function (target, errs) {
                     if (target.maxDataPoints) {
@@ -459,7 +459,7 @@ System.register(['lodash', 'app/plugins/sdk'], function(exports_1) {
                     }
                     if (this.target.shouldOverrideGranularity) {
                         if (this.target.customGranularity) {
-                            if (!lodash_1.default.contains(this.customGranularity, this.target.customGranularity)) {
+                            if (!lodash_1["default"].contains(this.customGranularity, this.target.customGranularity)) {
                                 errs.customGranularity = "Invalid granularity.";
                             }
                         }
@@ -492,7 +492,7 @@ System.register(['lodash', 'app/plugins/sdk'], function(exports_1) {
                             }
                         }
                     }
-                    if (lodash_1.default.isEmpty(this.target.aggregators) && !lodash_1.default.isEqual(this.target.queryType, "select")) {
+                    if (lodash_1["default"].isEmpty(this.target.aggregators) && !lodash_1["default"].isEqual(this.target.queryType, "select")) {
                         errs.aggregators = "You must supply at least one aggregator";
                     }
                     if (this.addPostAggregatorMode) {

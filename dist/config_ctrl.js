@@ -1,4 +1,4 @@
-///<reference path="../../../headers/common.d.ts" />
+///<reference path="../headers/common.d.ts" />
 System.register([], function(exports_1) {
     var DruidConfigCtrl;
     return {
