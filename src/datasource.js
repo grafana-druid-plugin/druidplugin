@@ -263,7 +263,7 @@ function (angular, _, dateMath, moment) {
     this._druidQuery = function (query) {
       var options = {
         method: 'POST',
-        url: this.url + '/druid/v2/?pretty',
+        url: this.url + '/druid/v2/',
         data: query
       };
       console.log("Make http request");
