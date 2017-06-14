@@ -352,4 +352,65 @@
       <div class="gf-form-label gf-form-label--grow"></div>
     </div>
   </div>
+  <div class="gf-form-inline">
+  <div class="gf-form">
+    <label class="gf-form-label query-keyword width-9">
+      Post Aggs
+    </label>
+  </div>
+
+  <div class="gf-form" ng-repeat="postAggregator in ctrl.target.postAggregators track by $index" class="gf-form">
+    <div ng-switch on="postAggregator.type">
+      <div ng-switch-when="arithmetic">
+        <label class="gf-form-label">
+          {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;fn&nbsp;=&nbsp;{{postAggregator.fn}}, &nbsp;fields&nbsp;=&nbsp;{{postAggregator.fields}}
+          <a ng-click="ctrl.removePostAggregator($index)">
+            <i class="fa fa-remove"></i>
+          </a>
+        </label>
+      </div>
+      <div ng-switch-when="quantile">
+        <label class="gf-form-label">
+          {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;field&nbsp;=&nbsp;{{postAggregator.fieldName}}, &nbsp;prob&nbsp;=&nbsp;{{postAggregator.probability}}
+          <a ng-click="ctrl.removePostAggregator($index)">
+            <i class="fa fa-remove"></i>
+          </a>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="gf-form" ng-hide="ctrl.addPostAggregatorMode">
+    <label class="gf-form-label query-keyword">
+      <a ng-click="ctrl.addPostAggregator()"><i class="fa fa-plus"></i></a>
+    </label>
+  </div>
+  <div class="gf-form-select-wrapper width-8" ng-show="ctrl.addPostAggregatorMode">
+    <select ng-model="ctrl.target.currentPostAggregator.type" class="gf-form-input" ng-options="type for type in ctrl.postAggregatorTypes" ng-change="ctrl.targetBlur()"></select>
+  </div>
+
+  <!-- arithmetic -->
+  <div class="gf-form" ng-show="ctrl.addPostAggregatorMode" ng-switch on="ctrl.target.currentPostAggregator.type">
+    <input type="text" ng-switch-when="arithmetic" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
+    <select ng-switch-when="arithmetic" class="input-small gf-form-input" ng-model="ctrl.target.currentPostAggregator.fn" ng-options="fn for fn in ctrl.arithmeticPostAggregator" ng-change="ctrl.targetBlur()"></select>
+    <input type="text" ng-switch-when="arithmetic" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.fields" placeholder="field1,field2" ng-blur="ctrl.targetBlur()">
+  </div>
+
+  <!-- quantile -->
+  <div class="gf-form" ng-show="ctrl.addPostAggregatorMode" ng-switch on="ctrl.target.currentPostAggregator.type">
+    <input type="text" ng-switch-when="quantile" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
+    <input type="text" ng-switch-when="quantile" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.fieldName" placeholder="agg name" ng-blur="ctrl.targetBlur()">
+    <input type="text" ng-switch-when="quantile" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.probability" placeholder="probability" ng-blur="ctrl.targetBlur()">
+  </div>
+
+  <div class="gf-form" ng-show="ctrl.addPostAggregatorMode">
+    <label class="gf-form-label">
+      <a ng-click="ctrl.addPostAggregator()">add tag</a>
+      <a ng-click="ctrl.clearCurrentPostAggregator()"><i class="fa fa-remove"></i></a>
+    </label>
+  </div>
+  <div class="gf-form gf-form--grow">
+    <div class="gf-form-label gf-form-label--grow"></div>
+  </div>
+</div>
 </query-editor-row>
