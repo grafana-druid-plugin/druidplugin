@@ -327,7 +327,7 @@ export class DruidQueryCtrl extends QueryCtrl {
     }
 
     isValidArithmeticPostAggregatorFn(fn) {
-      return _.has(this.arithmeticPostAggregator, fn);
+      return _.contains(this.arithmeticPostAggregator, fn);
     }
 
     validateMaxDataPoints(target, errs) {

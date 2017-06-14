@@ -267,7 +267,7 @@ var DruidQueryCtrl = (function (_super) {
         return lodash_1.default.has(this.queryTypeValidators, type);
     };
     DruidQueryCtrl.prototype.isValidArithmeticPostAggregatorFn = function (fn) {
-        return lodash_1.default.has(this.arithmeticPostAggregator, fn);
+        return lodash_1.default.contains(this.arithmeticPostAggregator, fn);
     };
     DruidQueryCtrl.prototype.validateMaxDataPoints = function (target, errs) {
         if (target.maxDataPoints) {
