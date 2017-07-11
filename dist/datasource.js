@@ -311,7 +311,7 @@ function (angular, _, dateMath, moment) {
 
     function getMetricNames(aggregators, postAggregators) {
       var displayAggs = _.filter(aggregators, function (agg) {
-        return agg.type !== 'approxHistogramFold';
+        return agg.type !== 'approxHistogramFold' && agg.hidden != true;
       });
       return _.union(_.map(displayAggs, 'name'), _.map(postAggregators, 'name'));
     }
