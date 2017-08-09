@@ -218,6 +218,11 @@ var DruidQueryCtrl = (function (_super) {
         }
         this.targetBlur();
     };
+    DruidQueryCtrl.prototype.editAggregator = function (index) {
+        this.addAggregatorMode = true;
+        var delAggregator = this.target.aggregators.splice(index, 1);
+        this.target.currentAggregator = delAggregator[0];
+    };
     DruidQueryCtrl.prototype.removeAggregator = function (index) {
         this.target.aggregators.splice(index, 1);
         this.targetBlur();

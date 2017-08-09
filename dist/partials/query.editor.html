@@ -271,6 +271,9 @@
         <div ng-switch-when="count">
           <label class="gf-form-label">
             {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}}
+            <a ng-click="ctrl.editAggregator($index)">
+              <i class="fa fa-pencil"></i>
+            </a>
             <a ng-click="ctrl.removeAggregator($index)">
               <i class="fa fa-remove"></i>
             </a>
@@ -279,6 +282,9 @@
         <div ng-switch-when="longSum">
           <label class="gf-form-label">
             {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}},&nbsp;fieldName&nbsp;=&nbsp;{{aggregator.fieldName}}
+            <a ng-click="ctrl.editAggregator($index)">
+              <i class="fa fa-pencil"></i>
+            </a>
             <a ng-click="ctrl.removeAggregator($index)">
               <i class="fa fa-remove"></i>
             </a>
@@ -287,6 +293,9 @@
         <div ng-switch-when="doubleSum">
           <label class="gf-form-label">
             {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}},&nbsp;fieldName&nbsp;=&nbsp;{{aggregator.fieldName}}
+            <a ng-click="ctrl.editAggregator($index)">
+              <i class="fa fa-pencil"></i>
+            </a>
             <a ng-click="ctrl.removeAggregator($index)">
               <i class="fa fa-remove"></i>
             </a>
@@ -295,6 +304,9 @@
         <div ng-switch-when="approxHistogramFold">
           <label class="gf-form-label">
             {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}},&nbsp;fieldName&nbsp;=&nbsp;{{aggregator.fieldName}}
+            <a ng-click="ctrl.editAggregator($index)">
+              <i class="fa fa-pencil"></i>
+            </a>
             <a ng-click="ctrl.removeAggregator($index)">
               <i class="fa fa-remove"></i>
             </a>
@@ -303,6 +315,9 @@
         <div ng-switch-when="hyperUnique">
           <label class="gf-form-label">
           {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}},&nbsp;fieldName&nbsp;=&nbsp;{{aggregator.fieldName}}
+            <a ng-click="ctrl.editAggregator($index)">
+              <i class="fa fa-pencil"></i>
+            </a>
           <a ng-click="ctrl.removeAggregator($index)">
             <i class="fa fa-remove"></i>
           </a>
