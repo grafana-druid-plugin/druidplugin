@@ -106,6 +106,13 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                         _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
                             .then(callback);
                     };
+                    this.getFilterValues = function (query, callback) {
+                        var dimension = _this.target.currentFilter.dimension;
+                        _this.datasource.getFilterValues(_this.target, _this.panelCtrl.range, query)
+                            .then(function (results) {
+                            callback(results.data[0].result.map(function (datum) { return datum[dimension]; }));
+                        });
+                    };
                     //this.$on('typeahead-updated', function() {
                     //  $timeout(this.targetBlur);
                     //});

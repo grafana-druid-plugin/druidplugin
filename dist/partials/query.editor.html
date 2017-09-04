@@ -239,7 +239,7 @@
     </div>
     <div class="gf-form" ng-show="ctrl.addFilterMode" ng-switch on="ctrl.target.currentFilter.type">
       <input type="text" ng-switch-when="selector" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentFilter.dimension" placeholder="dimension" bs-typeahead="ctrl.getDimensions" data-min-length=0 ng-blur="ctrl.targetBlur()">
-      <input type="text" ng-switch-when="selector" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentFilter.value" ng-blur="ctrl.targetBlur()" placeholder="value">
+      <input type="text" ng-switch-when="selector" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentFilter.value" ng-blur="ctrl.targetBlur()" bs-typeahead="ctrl.getFilterValues" placeholder="value">
     </div>
     <div class="gf-form" ng-show="ctrl.addFilterMode" ng-switch on="ctrl.target.currentFilter.type">
       <input type="text" ng-switch-when="javascript" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentFilter.dimension" placeholder="dimension" bs-typeahead="ctrl.getDimensions" data-min-length=0 ng-blur="ctrl.targetBlur()">

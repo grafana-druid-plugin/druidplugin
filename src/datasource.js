@@ -30,6 +30,7 @@ function (angular, _, dateMath, moment) {
     this.basicAuth = instanceSettings.basicAuth;
     instanceSettings.jsonData = instanceSettings.jsonData || {};
     this.supportMetrics = true;
+    this.periodGranularity = instanceSettings.jsonData.periodGranularity;
 
     function replaceTemplateValues(obj, scopedVars, attrList) {
       var substitutedVals = attrList.map(function (attr) {
@@ -50,6 +51,7 @@ function (angular, _, dateMath, moment) {
       "selector": _.partialRight(replaceTemplateValues, ['value']),
       "regex": _.partialRight(replaceTemplateValues, ['pattern']),
       "javascript": _.partialRight(replaceTemplateValues, ['function']),
+      "search": _.partialRight(replaceTemplateValues, []),
     };
 
     this.testDatasource = function() {
@@ -69,6 +71,35 @@ function (angular, _, dateMath, moment) {
       return this._get('/druid/v2/datasources/'+ datasource).then(function (response) {
         return response.data;
       });
+    };
+
+    this.getFilterValues = function (target, panelRange, query) {
+        var topNquery = {
+            "queryType": "topN",
+            "dataSource": target.datasource,
+            "granularity": 'all',
+            "threshold": 10,
+            "dimension": target.currentFilter.dimension,
+            "metric": "count",
+            "aggregations": [{ "type" : "count", "name" : "count" }],
+            "intervals" : getQueryIntervals(panelRange.from, panelRange.to)
+        };
+
+        var filters = [];
+        if(target.filters){
+            filters = angular.copy(target.filters);
+        }
+        filters.push({
+            "type": "search",
+            "dimension": target.currentFilter.dimension,
+            "query": {
+                "type": "insensitive_contains",
+                "value": query
+            }
+        });
+        topNquery.filter = buildFilterTree(filters);
+
+        return this._druidQuery(topNquery);
     };
 
     this._get = function(relativeUrl, params) {
@@ -102,6 +133,11 @@ function (angular, _, dateMath, moment) {
         //Round up to start of an interval
         //Width of bar chars in Grafana is determined by size of the smallest interval
         var roundedFrom = granularity === "all" ? from : roundUpStartTime(from, granularity);
+        if(dataSource.periodGranularity!=""){
+            if(granularity==='day'){
+                granularity = {"type": "period", "period": "P1D", "timeZone": dataSource.periodGranularity}
+            }
+        }
         return dataSource._doQuery(roundedFrom, to, granularity, target, options.scopedVars);
       });
 
