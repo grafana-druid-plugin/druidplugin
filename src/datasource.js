@@ -120,8 +120,8 @@ function (angular, _, dateMath, moment) {
       console.log(options);
 
       var promises = options.targets.map(function (target) {
-        if (_.isEmpty(target.druidDS) || (_.isEmpty(target.aggregators) && target.queryType !== "select")  || target.hide===true) {
-          console.log("target.druidDS: " + target.druidDS + ", target.aggregators: " + target.aggregators);
+        if (target.hide===true || _.isEmpty(target.druidDS) || (_.isEmpty(target.aggregators) && target.queryType !== "select")) {
+          console.log("target.hide: " + target.hide + ", target.druidDS: " + target.druidDS + ", target.aggregators: " + target.aggregators);
           var d = $q.defer();
           d.resolve([]);
           return d.promise;
