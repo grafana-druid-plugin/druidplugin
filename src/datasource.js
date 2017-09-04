@@ -31,9 +31,9 @@ function (angular, _, dateMath, moment) {
     instanceSettings.jsonData = instanceSettings.jsonData || {};
     this.supportMetrics = true;
 
-    function replaceTemplateValues(obj, attrList) {
+    function replaceTemplateValues(obj, scopedVars, attrList) {
       var substitutedVals = attrList.map(function (attr) {
-        return templateSrv.replace(obj[attr]);
+        return templateSrv.replace(obj[attr], scopedVars);
       });
       return _.assign(_.clone(obj, true), _.zipObject(attrList, substitutedVals));
     }
@@ -102,7 +102,7 @@ function (angular, _, dateMath, moment) {
         //Round up to start of an interval
         //Width of bar chars in Grafana is determined by size of the smallest interval
         var roundedFrom = granularity === "all" ? from : roundUpStartTime(from, granularity);
-        return dataSource._doQuery(roundedFrom, to, granularity, target);
+        return dataSource._doQuery(roundedFrom, to, granularity, target, options.scopedVars);
       });
 
       return $q.all(promises).then(function(results) {
@@ -110,12 +110,12 @@ function (angular, _, dateMath, moment) {
       });
     };
 
-    this._doQuery = function (from, to, granularity, target) {
+    this._doQuery = function (from, to, granularity, target, scopedVars) {
       var datasource = target.druidDS;
       var filters = target.filters;
       var aggregators = target.aggregators;
       var postAggregators = target.postAggregators;
-      var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e) });
+      var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e, scopedVars) });
       var limitSpec = null;
       var metricNames = getMetricNames(aggregators, postAggregators);
       var intervals = getQueryIntervals(from, to);
@@ -131,27 +131,27 @@ function (angular, _, dateMath, moment) {
       if (target.queryType === 'topN') {
         var threshold = target.limit;
         var metric = target.druidMetric;
-        var dimension = templateSrv.replace(target.dimension);
-        promise = this._topNQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, threshold, metric, dimension)
+        var dimension = templateSrv.replace(target.dimension, scopedVars);
+        promise = this._topNQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, threshold, metric, dimension, scopedVars)
           .then(function(response) {
             return convertTopNData(response.data, dimension, metric);
           });
       }
       else if (target.queryType === 'groupBy') {
         limitSpec = getLimitSpec(target.limit, target.orderBy);
-        promise = this._groupByQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, groupBy, limitSpec)
+        promise = this._groupByQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, groupBy, limitSpec, scopedVars)
           .then(function(response) {
             return convertGroupByData(response.data, groupBy, metricNames);
           });
       }
       else if (target.queryType === 'select') {
-        promise = this._selectQuery(datasource, intervals, granularity, selectDimensions, selectMetrics, filters, selectThreshold);
+        promise = this._selectQuery(datasource, intervals, granularity, selectDimensions, selectMetrics, filters, selectThreshold, scopedVars);
         return promise.then(function(response) {
           return convertSelectData(response.data);
         });
       }
       else {
-        promise = this._timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
+        promise = this._timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, scopedVars)
           .then(function(response) {
             return convertTimeSeriesData(response.data, metricNames);
           });
@@ -183,7 +183,7 @@ function (angular, _, dateMath, moment) {
       });
     };
 
-    this._selectQuery = function (datasource, intervals, granularity, dimension, metric, filters, selectThreshold) {
+    this._selectQuery = function (datasource, intervals, granularity, dimension, metric, filters, selectThreshold, scopedVars) {
       var query = {
         "queryType": "select",
         "dataSource": datasource,
@@ -195,13 +195,13 @@ function (angular, _, dateMath, moment) {
       };
 
       if (filters && filters.length > 0) {
-        query.filter = buildFilterTree(filters);
+        query.filter = buildFilterTree(filters, scopedVars);
       }
 
       return this._druidQuery(query);
     };
 
-    this._timeSeriesQuery = function (datasource, intervals, granularity, filters, aggregators, postAggregators) {
+    this._timeSeriesQuery = function (datasource, intervals, granularity, filters, aggregators, postAggregators, scopedVars) {
       var query = {
         "queryType": "timeseries",
         "dataSource": datasource,
@@ -212,14 +212,14 @@ function (angular, _, dateMath, moment) {
       };
 
       if (filters && filters.length > 0) {
-        query.filter = buildFilterTree(filters);
+        query.filter = buildFilterTree(filters, scopedVars);
       }
 
       return this._druidQuery(query);
     };
 
     this._topNQuery = function (datasource, intervals, granularity, filters, aggregators, postAggregators,
-    threshold, metric, dimension) {
+    threshold, metric, dimension, scopedVars) {
       var query = {
         "queryType": "topN",
         "dataSource": datasource,
@@ -234,14 +234,14 @@ function (angular, _, dateMath, moment) {
       };
 
       if (filters && filters.length > 0) {
-        query.filter = buildFilterTree(filters);
+        query.filter = buildFilterTree(filters, scopedVars);
       }
 
       return this._druidQuery(query);
     };
 
     this._groupByQuery = function (datasource, intervals, granularity, filters, aggregators, postAggregators,
-    groupBy, limitSpec) {
+    groupBy, limitSpec, scopedVars) {
       var query = {
         "queryType": "groupBy",
         "dataSource": datasource,
@@ -254,7 +254,7 @@ function (angular, _, dateMath, moment) {
       };
 
       if (filters && filters.length > 0) {
-        query.filter = buildFilterTree(filters);
+        query.filter = buildFilterTree(filters, scopedVars);
       }
 
       return this._druidQuery(query);
@@ -281,10 +281,10 @@ function (angular, _, dateMath, moment) {
       };
     }
 
-    function buildFilterTree(filters) {
+    function buildFilterTree(filters, scopedVars) {
       //Do template variable replacement
       var replacedFilters = filters.map(function (filter) {
-        return filterTemplateExpanders[filter.type](filter);
+        return filterTemplateExpanders[filter.type](filter, scopedVars);
       })
       .map(function (filter) {
         var finalFilter = _.omit(filter, 'negate');
