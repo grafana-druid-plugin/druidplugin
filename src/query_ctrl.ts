@@ -16,6 +16,7 @@ export class DruidQueryCtrl extends QueryCtrl {
   getDimensionsAndMetrics: any;
   getMetrics: any;
   getDimensions: any;
+  getFilterValues: any;
   queryTypes: any;
   filterTypes: any;
   aggregatorTypes: any;
@@ -125,6 +126,14 @@ export class DruidQueryCtrl extends QueryCtrl {
       console.log("getDimensionsAndMetrics.query: " + query);
       this.datasource.getDimensionsAndMetrics(this.target.druidDS)
         .then(callback);
+    };
+
+    this.getFilterValues = (query, callback) => {
+      let dimension = this.target.currentFilter.dimension;
+      this.datasource.getFilterValues(this.target, this.panelCtrl.range, query)
+          .then(function(results){
+            callback(results.data[0].result.map(function(datum){return datum[dimension]; } ));
+          } );
     };
 
       //this.$on('typeahead-updated', function() {
