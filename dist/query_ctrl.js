@@ -289,7 +289,7 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     return lodash_1["default"].has(this.queryTypeValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidArithmeticPostAggregatorFn = function (fn) {
-                    return lodash_1["default"].contains(this.arithmeticPostAggregator, fn);
+                    return lodash_1["default"].includes(this.arithmeticPostAggregator, fn);
                 };
                 DruidQueryCtrl.prototype.validateMaxDataPoints = function (target, errs) {
                     if (target.maxDataPoints) {
