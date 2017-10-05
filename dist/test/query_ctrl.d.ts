@@ -12,6 +12,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     getDimensionsAndMetrics: any;
     getMetrics: any;
     getDimensions: any;
+    getFilterValues: any;
     queryTypes: any;
     filterTypes: any;
     aggregatorTypes: any;
