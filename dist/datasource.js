@@ -30,6 +30,7 @@ function (angular, _, dateMath, moment) {
     this.basicAuth = instanceSettings.basicAuth;
     instanceSettings.jsonData = instanceSettings.jsonData || {};
     this.supportMetrics = true;
+    this.periodGranularity = instanceSettings.jsonData.periodGranularity;
 
     function replaceTemplateValues(obj, attrList) {
       var substitutedVals = attrList.map(function (attr) {
@@ -75,7 +76,7 @@ function (angular, _, dateMath, moment) {
     this.getFilterValues = function (target, panelRange, query) {
         var topNquery = {
             "queryType": "topN",
-            "dataSource": target.datasource,
+            "dataSource": target.druidDS,
             "granularity": 'all',
             "threshold": 10,
             "dimension": target.currentFilter.dimension,
@@ -132,6 +133,11 @@ function (angular, _, dateMath, moment) {
         //Round up to start of an interval
         //Width of bar chars in Grafana is determined by size of the smallest interval
         var roundedFrom = granularity === "all" ? from : roundUpStartTime(from, granularity);
+        if(dataSource.periodGranularity!=""){
+            if(granularity==='day'){
+                granularity = {"type": "period", "period": "P1D", "timeZone": dataSource.periodGranularity}
+            }
+        }
         return dataSource._doQuery(roundedFrom, to, granularity, target);
       });
 
