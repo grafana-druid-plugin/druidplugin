@@ -106,6 +106,13 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                         _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
                             .then(callback);
                     };
+                    this.getFilterValues = function (query, callback) {
+                        var dimension = _this.target.currentFilter.dimension;
+                        _this.datasource.getFilterValues(_this.target, _this.panelCtrl.range, query)
+                            .then(function (results) {
+                            callback(results.data[0].result.map(function (datum) { return datum[dimension]; }));
+                        });
+                    };
                     //this.$on('typeahead-updated', function() {
                     //  $timeout(this.targetBlur);
                     //});
@@ -282,7 +289,7 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     return lodash_1["default"].has(this.queryTypeValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidArithmeticPostAggregatorFn = function (fn) {
-                    return lodash_1["default"].contains(this.arithmeticPostAggregator, fn);
+                    return lodash_1["default"].includes(this.arithmeticPostAggregator, fn);
                 };
                 DruidQueryCtrl.prototype.validateMaxDataPoints = function (target, errs) {
                     if (target.maxDataPoints) {
