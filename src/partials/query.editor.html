@@ -323,6 +323,17 @@
           </a>
           </label>
         </div>
+        <div ng-switch-when="thetaSketch">
+          <label class="gf-form-label">
+          {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}},&nbsp;fieldName&nbsp;=&nbsp;{{aggregator.fieldName}}
+            <a ng-click="ctrl.editAggregator($index)">
+              <i class="fa fa-pencil"></i>
+            </a>
+          <a ng-click="ctrl.removeAggregator($index)">
+            <i class="fa fa-remove"></i>
+          </a>
+          </label>
+        </div>
       </div>
       <label class="gf-form-label" ng-if="aggregator.hidden">&nbsp;)</label>
     </div>
@@ -362,6 +373,12 @@
       <input type="text" ng-switch-when="hyperUnique" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
       <input type="text" ng-switch-when="hyperUnique" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.fieldName" ng-blur="ctrl.targetBlur()" placeholder="metric name" bs-typeahead="ctrl.getMetrics" data-min-length=0>
       <gf-form-switch ng-switch-when="hyperUnique" class="gf-form" label="Hidden" label-class="query-keyword" checked="ctrl.target.currentAggregator.hidden"></gf-form-switch>
+    </div>
+    <div class="gf-form" ng-show="ctrl.addAggregatorMode" ng-switch on="ctrl.target.currentAggregator.type">
+      <input type="text" ng-switch-when="thetaSketch" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
+      <input type="text" ng-switch-when="thetaSketch" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.fieldName" ng-blur="ctrl.targetBlur()" placeholder="metric name" bs-typeahead="ctrl.getMetrics" data-min-length=0>
+      <gf-form-switch ng-switch-when="thetaSketch" class="gf-form" label="isInputThetaSketch" label-class="query-keyword" checked="ctrl.target.currentAggregator.isInputThetaSketch"></gf-form-switch>
+      <input type="text" ng-switch-when="thetaSketch" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.size" ng-blur="ctrl.targetBlur()" placeholder="size" data-min-length=0>
     </div>
     <div class="gf-form" ng-show="ctrl.addAggregatorMode">
       <label class="gf-form-label">
