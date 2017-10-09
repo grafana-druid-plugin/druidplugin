@@ -476,8 +476,6 @@ export class DruidQueryCtrl extends QueryCtrl {
     validateThetaSketchAggregator(target) {
       var err = this.validateSimpleAggregator('thetaSketch', target);
       if (err) { return err;}
-      //TODO - check that isInputThetaSketch is boolean (if given)
-      //TODO - check that size is int (if given)
       return null;
     }
 
