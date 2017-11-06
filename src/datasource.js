@@ -75,7 +75,7 @@ function (angular, _, dateMath, moment) {
     this.getFilterValues = function (target, panelRange, query) {
         var topNquery = {
             "queryType": "topN",
-            "dataSource": target.datasource,
+            "dataSource": target.druidDS,
             "granularity": 'all',
             "threshold": 10,
             "dimension": target.currentFilter.dimension,
