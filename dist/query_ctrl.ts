@@ -42,7 +42,8 @@ export class DruidQueryCtrl extends QueryCtrl {
       "longSum": _.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
       "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
       "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
-      "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
+      "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
+      "thetaSketch": this.validateThetaSketchAggregator.bind(this)
     };
     postAggregatorValidators = {
       "arithmetic": this.validateArithmeticPostAggregator.bind(this),
@@ -469,6 +470,12 @@ export class DruidQueryCtrl extends QueryCtrl {
       if (err) { return err; }
       //TODO - check that resolution and numBuckets are ints (if given)
       //TODO - check that lowerLimit and upperLimit are flots (if given)
+      return null;
+    }
+
+    validateThetaSketchAggregator(target) {
+      var err = this.validateSimpleAggregator('thetaSketch', target);
+      if (err) { return err;}
       return null;
     }
 
