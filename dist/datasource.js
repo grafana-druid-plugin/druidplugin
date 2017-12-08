@@ -119,7 +119,12 @@ function (angular, _, dateMath, moment) {
       console.log("Do query");
       console.log(options);
 
+      if (options && options.targets[0] && options.targets[0].aggregators[0] && options.targets[0].aggregators[0].fieldNames) {
+        options.targets[0].aggregators[0].fieldNames = options.targets[0].aggregators[0].fieldNames.split(",")
+      }
+
       var promises = options.targets.map(function (target) {
+
         if (target.hide===true || _.isEmpty(target.druidDS) || (_.isEmpty(target.aggregators) && target.queryType !== "select")) {
           console.log("target.hide: " + target.hide + ", target.druidDS: " + target.druidDS + ", target.aggregators: " + target.aggregators);
           var d = $q.defer();

@@ -35,6 +35,7 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     };
                     this.aggregatorValidators = {
                         "count": this.validateCountAggregator,
+                        "cardinality": lodash_1["default"].partial(this.validateCardinalityAggregator.bind(this), 'cardinality'),
                         "longSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'longSum'),
                         "doubleSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
                         "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
@@ -388,6 +389,12 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                 DruidQueryCtrl.prototype.validateCountAggregator = function (target) {
                     if (!target.currentAggregator.name) {
                         return "Must provide an output name for count aggregator.";
+                    }
+                    return null;
+                };
+                DruidQueryCtrl.prototype.validateCardinalityAggregator = function (type, target) {
+                    if (!target.currentAggregator.name) {
+                        return "Must provide an output name for " + type + " aggregator.";
                     }
                     return null;
                 };

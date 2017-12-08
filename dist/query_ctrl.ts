@@ -39,6 +39,7 @@ export class DruidQueryCtrl extends QueryCtrl {
     };
     aggregatorValidators = {
       "count": this.validateCountAggregator,
+      "cardinality": _.partial(this.validateCardinalityAggregator.bind(this), 'cardinality'),
       "longSum": _.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
       "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
       "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
@@ -451,6 +452,14 @@ export class DruidQueryCtrl extends QueryCtrl {
       if (!target.currentAggregator.name) {
         return "Must provide an output name for count aggregator.";
       }
+      return null;
+    }
+
+    validateCardinalityAggregator(type, target) {
+      if (!target.currentAggregator.name) {
+        return "Must provide an output name for " + type + " aggregator.";
+      }
+    
       return null;
     }
 
