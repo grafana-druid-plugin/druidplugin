@@ -116,13 +116,7 @@ function (angular, _, dateMath, moment) {
       var from = dateToMoment(options.range.from, false);
       var to = dateToMoment(options.range.to, true);
 
-      console.log("Do query");
-      console.log(options);
-
-      options.targets[0].aggregators[0].fieldNames = options.targets[0].aggregators[0].fieldNames.split(",")
-
       var promises = options.targets.map(function (target) {
-
         if (target.hide===true || _.isEmpty(target.druidDS) || (_.isEmpty(target.aggregators) && target.queryType !== "select")) {
           console.log("target.hide: " + target.hide + ", target.druidDS: " + target.druidDS + ", target.aggregators: " + target.aggregators);
           var d = $q.defer();
@@ -150,9 +144,17 @@ function (angular, _, dateMath, moment) {
     };
 
     this._doQuery = function (from, to, granularity, target) {
+
+      function splitCardinalityFields(aggregator) {
+        if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
+          aggregator.fieldNames = aggregator.fieldNames.split(',')
+        }
+        return aggregator;
+      }
+
       var datasource = target.druidDS;
       var filters = target.filters;
-      var aggregators = target.aggregators;
+      var aggregators = target.aggregators.map(splitCardinalityFields);
       var postAggregators = target.postAggregators;
       var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e) });
       var limitSpec = null;
