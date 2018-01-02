@@ -136,8 +136,6 @@ function (angular, _, dateMath, moment) {
             }
         }
 
-       // target.aggregators[0].fieldNames = target.aggregators[0].fieldNames.split(",")
-
         return dataSource._doQuery(roundedFrom, to, granularity, target);
       });
 
