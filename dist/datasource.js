@@ -135,7 +135,6 @@ function (angular, _, dateMath, moment) {
                 granularity = {"type": "period", "period": "P1D", "timeZone": dataSource.periodGranularity}
             }
         }
-
         return dataSource._doQuery(roundedFrom, to, granularity, target);
       });
 
