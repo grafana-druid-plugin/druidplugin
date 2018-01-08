@@ -157,6 +157,8 @@ function (angular, _, dateMath, moment) {
       var intervals = getQueryIntervals(from, to);
       var promise = null;
 
+      var skipEmptyBuckets = target.skipEmptyBuckets
+
       var selectMetrics = target.selectMetrics;
       var selectDimensions = target.selectDimensions;
       var selectThreshold = target.selectThreshold;
@@ -187,7 +189,8 @@ function (angular, _, dateMath, moment) {
         });
       }
       else {
-        promise = this._timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
+
+        promise = this._timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators,skipEmptyBuckets)
           .then(function(response) {
             return convertTimeSeriesData(response.data, metricNames);
           });
@@ -237,7 +240,7 @@ function (angular, _, dateMath, moment) {
       return this._druidQuery(query);
     };
 
-    this._timeSeriesQuery = function (datasource, intervals, granularity, filters, aggregators, postAggregators) {
+    this._timeSeriesQuery = function (datasource, intervals, granularity, filters, aggregators, postAggregators, skipEmptyBuckets) {
       var query = {
         "queryType": "timeseries",
         "dataSource": datasource,
@@ -246,6 +249,12 @@ function (angular, _, dateMath, moment) {
         "postAggregations": postAggregators,
         "intervals": intervals
       };
+
+      if(skipEmptyBuckets){
+          query.context = {
+              "skipEmptyBuckets": "true"
+          }
+      }
 
       if (filters && filters.length > 0) {
         query.filter = buildFilterTree(filters);

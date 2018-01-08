@@ -22,7 +22,11 @@
         </select>
       </div>
     </div>
+
     <gf-form-switch class="gf-form" label="Custom Granularity" label-class="query-keyword" checked="ctrl.target.shouldOverrideGranularity" on-change="ctrl.targetBlur()">
+    </gf-form-switch>
+
+    <gf-form-switch class="gf-form" label="Skip empty buckets" ng-if="ctrl.target.queryType == 'timeseries'" label-class="query-keyword" checked="ctrl.target.skipEmptyBuckets" on-change="ctrl.targetBlur()">
     </gf-form-switch>
 
     <div class="gf-form" ng-hide="!ctrl.target.shouldOverrideGranularity">
