@@ -28,7 +28,8 @@ var DruidQueryCtrl = (function (_super) {
             "longSum": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
             "doubleSum": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
             "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
-            "hyperUnique": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
+            "hyperUnique": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
+            "thetaSketch": this.validateThetaSketchAggregator.bind(this)
         };
         this.postAggregatorValidators = {
             "arithmetic": this.validateArithmeticPostAggregator.bind(this),
@@ -397,6 +398,13 @@ var DruidQueryCtrl = (function (_super) {
         }
         //TODO - check that resolution and numBuckets are ints (if given)
         //TODO - check that lowerLimit and upperLimit are flots (if given)
+        return null;
+    };
+    DruidQueryCtrl.prototype.validateThetaSketchAggregator = function (target) {
+        var err = this.validateSimpleAggregator('thetaSketch', target);
+        if (err) {
+            return err;
+        }
         return null;
     };
     DruidQueryCtrl.prototype.validateSimplePostAggregator = function (type, target) {
