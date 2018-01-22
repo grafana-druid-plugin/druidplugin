@@ -33,6 +33,8 @@ var DruidQueryCtrl = (function (_super) {
         };
         this.postAggregatorValidators = {
             "arithmetic": this.validateArithmeticPostAggregator.bind(this),
+            "max": this.validateMaxPostAggregator.bind(this),
+            "min": this.validateMinPostAggregator.bind(this),
             "quantile": this.validateQuantilePostAggregator.bind(this)
         };
         this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
@@ -415,6 +417,20 @@ var DruidQueryCtrl = (function (_super) {
             return "Must provide an aggregator name for " + type + " post aggregator.";
         }
         //TODO - check that fieldName is a valid aggregation (exists and of correct type)
+        return null;
+    };
+    DruidQueryCtrl.prototype.validateMaxPostAggregator = function (target) {
+        var err = this.validateSimplePostAggregator('max', target);
+        if (err) {
+            return err;
+        }
+        return null;
+    };
+    DruidQueryCtrl.prototype.validateMinPostAggregator = function (target) {
+        var err = this.validateSimplePostAggregator('min', target);
+        if (err) {
+            return err;
+        }
         return null;
     };
     DruidQueryCtrl.prototype.validateQuantilePostAggregator = function (target) {
