@@ -18,9 +18,22 @@ define([
   'lodash',
   'app/core/utils/datemath',
   'moment',
+  './druid_sql'
 ],
-function (angular, _, dateMath, moment) {
+function (angular, _, dateMath, moment, druidSQL) {
   'use strict';
+
+  function formatSQLResponse(from, response) {
+    if (!response.length) {
+      return [];
+        }
+
+    var datapoints = response.map(function(row) {
+      return [row.measure, formatTimestamp(row.timestamp)];
+    });
+
+    return [{target: 't', datapoints: datapoints}];
+  }
 
   /** @ngInject */
   function DruidDatasource(instanceSettings, $q, backendSrv, templateSrv) {
@@ -110,35 +123,65 @@ function (angular, _, dateMath, moment) {
       });
     };
 
+    this.metricFindQuery = function(query) {
+      return this._druidSQLQuery(query).then(r => r.data);
+    };
+
+    function shouldQuery(target) {
+      if (target.hide===true) {
+        return false;
+      }
+
+      if (target.rawQuery) {
+        return true;
+      }
+ 
+      if (_.isEmpty(target.druidDS)) {
+        return false;
+      }
+ 
+      if (_.isEmpty(target.aggregators) && target.queryType !== "select") {
+        return false;
+      }
+
+      return true;
+    }
+
     // Called once per panel (graph)
     this.query = function(options) {
       var dataSource = this;
       var from = dateToMoment(options.range.from, false);
       var to = dateToMoment(options.range.to, true);
-
       console.log("Do query");
       console.log(options);
 
       var promises = options.targets.map(function (target) {
-        if (target.hide===true || _.isEmpty(target.druidDS) || (_.isEmpty(target.aggregators) && target.queryType !== "select")) {
+        if (!shouldQuery(target)) {
           console.log("target.hide: " + target.hide + ", target.druidDS: " + target.druidDS + ", target.aggregators: " + target.aggregators);
           var d = $q.defer();
           d.resolve([]);
           return d.promise;
         }
+
         var maxDataPointsByResolution = options.maxDataPoints;
         var maxDataPointsByConfig = target.maxDataPoints? target.maxDataPoints : Number.MAX_VALUE;
         var maxDataPoints = Math.min(maxDataPointsByResolution, maxDataPointsByConfig);
         var granularity = target.shouldOverrideGranularity? target.customGranularity : computeGranularity(from, to, maxDataPoints);
+
         //Round up to start of an interval
         //Width of bar chars in Grafana is determined by size of the smallest interval
         var roundedFrom = granularity === "all" ? from : roundUpStartTime(from, granularity);
-        if(dataSource.periodGranularity!=""){
-            if(granularity==='day'){
-                granularity = {"type": "period", "period": "P1D", "timeZone": dataSource.periodGranularity}
-            }
+
+        if (target.rawQuery) {
+          return dataSource._doSqlQuery(roundedFrom, to, granularity, target, options.scopedVars);
         }
-        return dataSource._doQuery(roundedFrom, to, granularity, target);
+
+        if(dataSource.periodGranularity!=""){
+          if(granularity==='day'){
+            granularity = {"type": "period", "period": "P1D", "timeZone": dataSource.periodGranularity};
+          }
+        }
+        return dataSource._doQuery(roundedFrom, to, granularity, target, options.scopedVars);
       });
 
       return $q.all(promises).then(function(results) {
@@ -146,16 +189,30 @@ function (angular, _, dateMath, moment) {
       });
     };
 
-    this._doQuery = function (from, to, granularity, target) {
+    this._doSqlQuery = function (from, to, granularity, target, scopedVars) {
+      var myScopedVars = druidSQL.makeScopedVars(from, to, granularity, scopedVars);
+      Object.keys(scopedVars).forEach((k) => {
+          myScopedVars[k] = scopedVars[k];
+      });
+      var queryString = templateSrv.replace(target.query, myScopedVars);
+      //var queryString = druidSQL.prepareQuery(from, to, granularity, target.query);
+      return this._druidSQLQuery(queryString).then(function (resp) {
+        var transformed = druidSQL.transformResultSet(resp.data);
+        return transformed;
+      });
+    };
+
+    this._doQuery = function (from, to, granularity, target, scopedVars) {
+      var promise = null;
+
       var datasource = target.druidDS;
       var filters = target.filters;
       var aggregators = target.aggregators;
       var postAggregators = target.postAggregators;
-      var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e) });
+      var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e); });
       var limitSpec = null;
       var metricNames = getMetricNames(aggregators, postAggregators);
       var intervals = getQueryIntervals(from, to);
-      var promise = null;
 
       var selectMetrics = target.selectMetrics;
       var selectDimensions = target.selectDimensions;
@@ -307,6 +364,17 @@ function (angular, _, dateMath, moment) {
       return backendSrv.datasourceRequest(options);
     };
 
+    this._druidSQLQuery = function (query) {
+      var options = {
+        method: 'POST',
+        url: this.url + '/druid/v2/sql',
+        data: {query: query}
+      };
+      console.log("Sending druid sql query");
+      console.log(options);
+      return backendSrv.datasourceRequest(options);
+    };
+
     function getLimitSpec(limitNum, orderBy) {
       return {
         "type": "default",
@@ -355,6 +423,18 @@ function (angular, _, dateMath, moment) {
     function formatTimestamp(ts) {
       return moment(ts).format('X')*1000;
     }
+
+  function formatSQLResponse(from, response) {
+    if (!response.length) {
+      return [];
+        }
+
+    var datapoints = response.map(function(row) {
+      return [row.measure, formatTimestamp(row.timestamp)];
+    });
+
+    return [{target: 't', datapoints: datapoints}];
+  }
 
     function convertTimeSeriesData(md, metrics) {
       return metrics.map(function (metric) {
