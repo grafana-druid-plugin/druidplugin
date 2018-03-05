@@ -604,4 +604,8 @@ export class DruidQueryCtrl extends QueryCtrl {
 
     return errs;
   }
+
+  toggleEditorMode() {
+    this.target.rawQuery = !this.target.rawQuery;
+  }
 }

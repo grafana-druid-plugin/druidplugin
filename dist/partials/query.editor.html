@@ -1,5 +1,26 @@
-<query-editor-row query-ctrl="ctrl" can-collapse="false">
+<query-editor-row query-ctrl="ctrl" can-collapse="false" has-text-edit-mode="true">
+<div ng-if="ctrl.target.rawQuery">
+ <div class="gf-form">
+    <textarea rows="3" class="gf-form-input" ng-model="ctrl.target.query" spellcheck="false" placeholder="Druid SQL Query" ng-model-onblur ng-change="ctrl.refresh()"></textarea>
+  </div>
   <div class="gf-form-inline">
+    <div class="gf-form">
+      <label class="gf-form-label query-keyword">FORMAT AS</label>
+      <div class="gf-form-select-wrapper">
+        <select class="gf-form-input gf-size-auto" ng-model="ctrl.target.resultFormat" ng-options="f.value as f.text for f in ctrl.resultFormats" ng-change="ctrl.refresh()"></select>
+      </div>
+    </div>
+    <div class="gf-form max-width-25"  ng-hide="ctrl.target.resultFormat === 'table'">
+      <label class="gf-form-label query-keyword">ALIAS BY</label>
+      <input type="text" class="gf-form-input" ng-model="ctrl.target.alias" spellcheck='false' placeholder="Naming pattern" ng-blur="ctrl.refresh()">
+    </div>
+    <div class="gf-form gf-form--grow">
+      <div class="gf-form-label gf-form-label--grow"></div>
+    </div>
+  </div>
+</div>
+<div ng-if="!ctrl.target.rawQuery">
+  <div class="gf-form-inline" >
     <div class="gf-form max-width-20">
       <label class="gf-form-label query-keyword width-9">
         Datasource
@@ -265,7 +286,7 @@
       </label>
     </div>
 
-    <div class="gf-form" ng-repeat="aggregator in ctrl.target.aggregators track by $index" class="gf-form">
+    <div class="gf-form" ng-repeat="aggregator in ctrl.target.aggregators track by $index">
       <label class="gf-form-label" ng-if="aggregator.hidden">Hidden&nbsp;(&nbsp;</label>
       <div ng-switch on="aggregator.type">
         <div ng-switch-when="count">

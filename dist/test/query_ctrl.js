@@ -534,6 +534,9 @@ var DruidQueryCtrl = (function (_super) {
         }
         return errs;
     };
+    DruidQueryCtrl.prototype.toggleEditorMode = function () {
+        this.target.rawQuery = !this.target.rawQuery;
+    };
     DruidQueryCtrl.templateUrl = 'partials/query.editor.html';
     return DruidQueryCtrl;
 })(sdk_1.QueryCtrl);

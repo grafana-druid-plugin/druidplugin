@@ -544,6 +544,9 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     }
                     return errs;
                 };
+                DruidQueryCtrl.prototype.toggleEditorMode = function () {
+                    this.target.rawQuery = !this.target.rawQuery;
+                };
                 DruidQueryCtrl.templateUrl = 'partials/query.editor.html';
                 return DruidQueryCtrl;
             })(sdk_1.QueryCtrl);
