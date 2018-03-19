@@ -27,8 +27,8 @@
 
     <div class="gf-form" ng-hide="!ctrl.target.shouldOverrideGranularity">
       <div class="gf-form-select-wrapper max-width-15">
-        <select ng-model="ctrl.target.customGranularity" class="gf-form-input" ng-options="granularity for granularity in ctrl.customGranularity" ng-change="ctrl.targetBlur()">
-        </select>
+        <input type="text" class="gf-form-input input-medium" ng-model="ctrl.target.customGranularity" spellcheck='false' bs-typeahead="ctrl.customGranularity" placeholder="granularity" data-min-length=0 ng-blur="ctrl.targetBlur()">
+        </input>
       </div>
     </div>
 
