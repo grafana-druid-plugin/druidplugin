@@ -16,6 +16,7 @@ export class DruidQueryCtrl extends QueryCtrl {
   getDimensionsAndMetrics: any;
   getMetrics: any;
   getDimensions: any;
+  getFilterValues: any;
   queryTypes: any;
   filterTypes: any;
   aggregatorTypes: any;
@@ -41,10 +42,13 @@ export class DruidQueryCtrl extends QueryCtrl {
       "longSum": _.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
       "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
       "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
-      "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
+      "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
+      "thetaSketch": this.validateThetaSketchAggregator.bind(this)
     };
     postAggregatorValidators = {
       "arithmetic": this.validateArithmeticPostAggregator.bind(this),
+      "max": this.validateMaxPostAggregator.bind(this),
+      "min": this.validateMinPostAggregator.bind(this),
       "quantile": this.validateQuantilePostAggregator.bind(this)
     };
 
@@ -125,6 +129,14 @@ export class DruidQueryCtrl extends QueryCtrl {
       console.log("getDimensionsAndMetrics.query: " + query);
       this.datasource.getDimensionsAndMetrics(this.target.druidDS)
         .then(callback);
+    };
+
+    this.getFilterValues = (query, callback) => {
+      let dimension = this.target.currentFilter.dimension;
+      this.datasource.getFilterValues(this.target, this.panelCtrl.range, query)
+          .then(function(results){
+            callback(results.data[0].result.map(function(datum){return datum[dimension]; } ));
+          } );
     };
 
       //this.$on('typeahead-updated', function() {
@@ -332,7 +344,7 @@ export class DruidQueryCtrl extends QueryCtrl {
     }
 
     isValidArithmeticPostAggregatorFn(fn) {
-      return _.contains(this.arithmeticPostAggregator, fn);
+      return _.includes(this.arithmeticPostAggregator, fn);
     }
 
     validateMaxDataPoints(target, errs) {
@@ -463,6 +475,12 @@ export class DruidQueryCtrl extends QueryCtrl {
       return null;
     }
 
+    validateThetaSketchAggregator(target) {
+      var err = this.validateSimpleAggregator('thetaSketch', target);
+      if (err) { return err;}
+      return null;
+    }
+
     validateSimplePostAggregator(type, target) {
       if (!target.currentPostAggregator.name) {
         return "Must provide an output name for " + type + " post aggregator.";
@@ -471,6 +489,18 @@ export class DruidQueryCtrl extends QueryCtrl {
         return "Must provide an aggregator name for " + type + " post aggregator.";
       }
       //TODO - check that fieldName is a valid aggregation (exists and of correct type)
+      return null;
+    }
+
+    validateMaxPostAggregator(target) {
+      var err = this.validateSimplePostAggregator('max', target);
+      if (err) { return err; }
+      return null;
+    }
+
+    validateMinPostAggregator(target) {
+      var err = this.validateSimplePostAggregator('min', target);
+      if (err) { return err; }
       return null;
     }
 
