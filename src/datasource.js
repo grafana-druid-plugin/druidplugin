@@ -129,7 +129,7 @@ function (angular, _, dateMath, moment) {
         var maxDataPointsByResolution = options.maxDataPoints;
         var maxDataPointsByConfig = target.maxDataPoints? target.maxDataPoints : Number.MAX_VALUE;
         var maxDataPoints = Math.min(maxDataPointsByResolution, maxDataPointsByConfig);
-        var granularity = target.shouldOverrideGranularity? target.customGranularity : computeGranularity(from, to, maxDataPoints);
+        var granularity = target.shouldOverrideGranularity? templateSrv.replace(target.customGranularity) : computeGranularity(from, to, maxDataPoints);
         //Round up to start of an interval
         //Width of bar chars in Grafana is determined by size of the smallest interval
         var roundedFrom = granularity === "all" ? from : roundUpStartTime(from, granularity);
