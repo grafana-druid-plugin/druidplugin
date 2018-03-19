@@ -12,6 +12,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     getDimensionsAndMetrics: any;
     getMetrics: any;
     getDimensions: any;
+    getFilterValues: any;
     queryTypes: any;
     filterTypes: any;
     aggregatorTypes: any;
@@ -37,9 +38,12 @@ export declare class DruidQueryCtrl extends QueryCtrl {
         "doubleSum": any;
         "approxHistogramFold": any;
         "hyperUnique": any;
+        "thetaSketch": any;
     };
     postAggregatorValidators: {
         "arithmetic": any;
+        "max": any;
+        "min": any;
         "quantile": any;
     };
     arithmeticPostAggregatorFns: {
@@ -98,7 +102,10 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     validateCountAggregator(target: any): string;
     validateSimpleAggregator(type: any, target: any): string;
     validateApproxHistogramFoldAggregator(target: any): string;
+    validateThetaSketchAggregator(target: any): string;
     validateSimplePostAggregator(type: any, target: any): string;
+    validateMaxPostAggregator(target: any): string;
+    validateMinPostAggregator(target: any): string;
     validateQuantilePostAggregator(target: any): string;
     validateArithmeticPostAggregator(target: any): string;
     validateTarget(): any;
