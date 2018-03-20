@@ -40,11 +40,16 @@ function (angular, _, dateMath, moment) {
     }
 
     var GRANULARITIES = [
+      ['second', moment.duration(1, 'second')],
       ['minute', moment.duration(1, 'minute')],
       ['fifteen_minute', moment.duration(15, 'minute')],
       ['thirty_minute', moment.duration(30, 'minute')],
       ['hour', moment.duration(1, 'hour')],
-      ['day', moment.duration(1, 'day')]
+      ['day', moment.duration(1, 'day')],
+      ['week', moment.duration(1, 'week')],
+      ['month', moment.duration(1, 'month')],
+      ['quarter', moment.duration(1, 'quarter')],
+      ['year', moment.duration(1, 'year')]
     ];
 
     var filterTemplateExpanders = {
