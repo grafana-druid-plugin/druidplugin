@@ -11,6 +11,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     listDataSources: any;
     getDimensionsAndMetrics: any;
     getMetrics: any;
+    getMetricsPlusDimensions: any;
     getDimensions: any;
     getFilterValues: any;
     queryTypes: any;
