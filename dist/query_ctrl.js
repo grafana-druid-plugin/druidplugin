@@ -103,6 +103,12 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                             callback(dimsAndMetrics.metrics);
                         });
                     };
+                    this.getMetricsPlusDimensions = function (query, callback) {
+                        return _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
+                            .then(function (dimsAndMetrics) {
+                            callback([].concat(dimsAndMetrics.metrics).concat(dimsAndMetrics.dimensions));
+                        });
+                    };
                     this.getDimensionsAndMetrics = function (query, callback) {
                         console.log("getDimensionsAndMetrics.query: " + query);
                         _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
