@@ -35,7 +35,6 @@
     "grunt-tslint": "^3.0.2",
     "grunt-typescript": "^0.8.0",
     "load-grunt-tasks": "~3.2.0",
-    "node-gyp": "^3.6.2",
     "prunk": "~1.2.1",
     "q": "~1.4.1"
   },
