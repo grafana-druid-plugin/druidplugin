@@ -585,7 +585,12 @@ function (angular, _, dateMath, moment) {
       var duration = _.find(GRANULARITIES, function (gEntry) {
         return gEntry[0] === granularity;
       })[1];
-      var rounded = moment(Math.ceil((+from)/(+duration)) * (+duration));
+      var rounded = null;
+      if(granularity==='day'){
+        rounded = moment(+from).startOf('day');
+      }else{
+        rounded = moment(Math.ceil((+from)/(+duration)) * (+duration));
+      }
       console.log("Rounding up start time from " + from.format() + " to " + rounded.format() + " for granularity [" + granularity + "]");
       return rounded;
     }

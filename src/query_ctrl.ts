@@ -49,6 +49,8 @@ export class DruidQueryCtrl extends QueryCtrl {
     };
     postAggregatorValidators = {
       "arithmetic": this.validateArithmeticPostAggregator.bind(this),
+      "max": this.validateMaxPostAggregator.bind(this),
+      "min": this.validateMinPostAggregator.bind(this),
       "quantile": this.validateQuantilePostAggregator.bind(this)
     };
 
@@ -504,6 +506,18 @@ export class DruidQueryCtrl extends QueryCtrl {
         return "Must provide an aggregator name for " + type + " post aggregator.";
       }
       //TODO - check that fieldName is a valid aggregation (exists and of correct type)
+      return null;
+    }
+
+    validateMaxPostAggregator(target) {
+      var err = this.validateSimplePostAggregator('max', target);
+      if (err) { return err; }
+      return null;
+    }
+
+    validateMinPostAggregator(target) {
+      var err = this.validateSimplePostAggregator('min', target);
+      if (err) { return err; }
       return null;
     }
 
