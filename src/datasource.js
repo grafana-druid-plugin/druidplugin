@@ -151,7 +151,7 @@ function (angular, _, dateMath, moment) {
       var filters = target.filters;
       var aggregators = target.aggregators;
       var postAggregators = target.postAggregators;
-      var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e) });
+      var groupBy = _.map(target.groupBy, function(e) { return templateSrv.replace(e) });
       var limitSpec = null;
       var metricNames = getMetricNames(aggregators, postAggregators);
       var intervals = getQueryIntervals(from, to);
