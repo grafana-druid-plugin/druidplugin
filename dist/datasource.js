@@ -425,7 +425,7 @@ function (angular, _, dateMath, moment) {
       var topbreaks = _.map(md, function (item) {
         return item.result[bucket].breaks.slice(-1)[0];
       });
-      var breaks = _.range(0, _.nax(topbreaks), bucketSize);
+      var breaks = _.range(0, _.max(topbreaks), bucketSize);
 
       if (! breaks.length) {
         console.log("Cannot calculate buckets because there are no breakpoints");
