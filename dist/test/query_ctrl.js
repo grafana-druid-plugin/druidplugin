@@ -35,7 +35,8 @@ var DruidQueryCtrl = (function (_super) {
             "arithmetic": this.validateArithmeticPostAggregator.bind(this),
             "max": this.validateMaxPostAggregator.bind(this),
             "min": this.validateMinPostAggregator.bind(this),
-            "quantile": this.validateQuantilePostAggregator.bind(this)
+            "quantile": this.validateQuantilePostAggregator.bind(this),
+            "buckets": this.validateBucketsPostAggregator.bind(this)
         };
         this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
         this.defaultQueryType = "timeseries";
@@ -440,6 +441,16 @@ var DruidQueryCtrl = (function (_super) {
         }
         if (!target.currentPostAggregator.probability) {
             return "Must provide a probability for the quantile post aggregator.";
+        }
+        return null;
+    };
+    DruidQueryCtrl.prototype.validateBucketsPostAggregator = function (target) {
+        var err = this.validateSimplePostAggregator('buckets', target);
+        if (err) {
+            return err;
+        }
+        if (!target.currentPostAggregator.bucketSize) {
+            return "Must provide a bucket size for the buckets post aggregator.";
         }
         return null;
     };

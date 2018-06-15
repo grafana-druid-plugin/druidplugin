@@ -431,6 +431,14 @@
           </a>
         </label>
       </div>
+      <div ng-switch-when="buckets">
+        <label class="gf-form-label">
+          {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;field&nbsp;=&nbsp;{{postAggregator.fieldName}}, &nbsp;size&nbsp;=&nbsp;{{postAggregator.bucketSize}}
+          <a ng-click="ctrl.removePostAggregator($index)">
+            <i class="fa fa-remove"></i>
+          </a>
+        </label>
+      </div>
     </div>
   </div>
 
@@ -467,6 +475,13 @@
     <input type="text" ng-switch-when="quantile" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
     <input type="text" ng-switch-when="quantile" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.fieldName" placeholder="agg name" ng-blur="ctrl.targetBlur()">
     <input type="text" ng-switch-when="quantile" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.probability" placeholder="probability" ng-blur="ctrl.targetBlur()">
+  </div>
+
+  <!-- buckets -->
+  <div class="gf-form" ng-show="ctrl.addPostAggregatorMode" ng-switch on="ctrl.target.currentPostAggregator.type">
+    <input type="text" ng-switch-when="buckets" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
+    <input type="text" ng-switch-when="buckets" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.fieldName" placeholder="agg name" ng-blur="ctrl.targetBlur()">
+    <input type="text" ng-switch-when="buckets" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.bucketSize" placeholder="bucketSize" ng-blur="ctrl.targetBlur()">
   </div>
 
   <div class="gf-form" ng-show="ctrl.addPostAggregatorMode">

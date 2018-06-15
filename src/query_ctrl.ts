@@ -49,7 +49,8 @@ export class DruidQueryCtrl extends QueryCtrl {
       "arithmetic": this.validateArithmeticPostAggregator.bind(this),
       "max": this.validateMaxPostAggregator.bind(this),
       "min": this.validateMinPostAggregator.bind(this),
-      "quantile": this.validateQuantilePostAggregator.bind(this)
+      "quantile": this.validateQuantilePostAggregator.bind(this),
+      "buckets": this.validateBucketsPostAggregator.bind(this)
     };
 
     arithmeticPostAggregatorFns = {'+': null, '-': null, '*': null, '/': null};
@@ -512,6 +513,16 @@ export class DruidQueryCtrl extends QueryCtrl {
       }
       return null;
     }
+
+    validateBucketsPostAggregator(target) {
+      var err = this.validateSimplePostAggregator('buckets', target);
+      if (err) { return err; }
+      if (!target.currentPostAggregator.bucketSize) {
+        return "Must provide a bucket size for the buckets post aggregator.";
+      }
+      return null;
+    }
+
 
     validateArithmeticPostAggregator(target) {
       if (!target.currentPostAggregator.name) {

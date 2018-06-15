@@ -151,6 +151,7 @@ function (angular, _, dateMath, moment) {
       var filters = target.filters;
       var aggregators = target.aggregators;
       var postAggregators = target.postAggregators;
+      var bucketAggregators = getBucketAggregators(target.postAggregators);
       var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e) });
       var limitSpec = null;
       var metricNames = getMetricNames(aggregators, postAggregators);
@@ -189,7 +190,13 @@ function (angular, _, dateMath, moment) {
       else {
         promise = this._timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
           .then(function(response) {
-            return convertTimeSeriesData(response.data, metricNames);
+            if (_.isEmpty(bucketAggregators)) {
+              return convertTimeSeriesData(response.data, metricNames);
+            }
+            else {
+              return convertBucketsData(response.data, bucketAggregators);
+            }
+            
           });
       }
       /*
@@ -352,6 +359,12 @@ function (angular, _, dateMath, moment) {
       return _.union(_.map(displayAggs, 'name'), _.map(postAggregators, 'name'));
     }
 
+    function getBucketAggregators(postAggregators) {
+      return _.filter(postAggregators, function (agg) {
+        return agg.type === 'buckets';
+      });
+    }
+
     function formatTimestamp(ts) {
       return moment(ts).format('X')*1000;
     }
@@ -365,6 +378,76 @@ function (angular, _, dateMath, moment) {
               item.result[metric],
               formatTimestamp(item.timestamp)
             ];
+          })
+        };
+      });
+    }
+
+    function convertBucketsData(md, bucketAggs) {
+
+      /*
+        The response data is of the form:
+        [
+          {
+            timestamp: "xxx",
+            result: 
+              <aggregator name>:
+                breaks: [...],
+                counts: [...]
+          },
+          ...
+        ]
+
+        We need to transform the data so that each breakpoint has a series:
+        [
+          {
+            target: <breakpoint 0>,
+            datapoints: [
+              [<count>, <timestamp in ms>],
+            ]
+          },
+          ...
+        ]
+
+      */
+
+      if (! md.length) {
+        console.log("Cannot calculate buckets because query data is empty");
+        return [];
+      }
+
+      /*
+        The original data will not have values for all breakpoints.
+        We first need to work out which breakpoints to use.
+      */
+      var bucket = _.map(bucketAggs, 'name')[0];
+      var bucketSize = Number(_.map(bucketAggs, 'bucketSize')[0]);
+      var topbreaks = _.map(md, function (item) {
+        return item.result[bucket].breaks.slice(-1)[0];
+      });
+      var breaks = _.range(0, _.max(topbreaks), bucketSize);
+
+      if (! breaks.length) {
+        console.log("Cannot calculate buckets because there are no breakpoints");
+        return [];
+      }
+
+      return breaks.map(function (metric) {
+        return {
+          target: String(metric),
+          datapoints: md.map(function (item) {
+            var index = item.result[bucket].breaks.indexOf(metric);
+            if (index == -1) {
+              return [
+                null,
+                formatTimestamp(item.timestamp)
+              ];
+            } else {
+              return [
+                item.result[bucket].counts[index],
+                formatTimestamp(item.timestamp)
+              ];
+            }
           })
         };
       });
