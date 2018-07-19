@@ -36,6 +36,10 @@ export declare class DruidQueryCtrl extends QueryCtrl {
         "count": (target: any) => string;
         "longSum": any;
         "doubleSum": any;
+        "longMin": any;
+        "longMax": any;
+        "doubleMin": any;
+        "doubleMax": any;
         "approxHistogramFold": any;
         "hyperUnique": any;
         "thetaSketch": any;

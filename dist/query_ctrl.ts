@@ -41,6 +41,10 @@ export class DruidQueryCtrl extends QueryCtrl {
       "count": this.validateCountAggregator,
       "longSum": _.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
       "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
+      "longMin": _.partial(this.validateSimpleAggregator.bind(this), 'longMin'),
+      "longMax": _.partial(this.validateSimpleAggregator.bind(this), 'longMax'),
+      "doubleMin": _.partial(this.validateSimpleAggregator.bind(this), 'doubleMin'),
+      "doubleMax": _.partial(this.validateSimpleAggregator.bind(this), 'doubleMax'),
       "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
       "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
       "thetaSketch": this.validateThetaSketchAggregator.bind(this)
