@@ -37,6 +37,10 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                         "count": this.validateCountAggregator,
                         "longSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'longSum'),
                         "doubleSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
+                        "longMin": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'longMin'),
+                        "longMax": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'longMax'),
+                        "doubleMin": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'doubleMin'),
+                        "doubleMax": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'doubleMax'),
                         "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
                         "hyperUnique": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
                         "thetaSketch": this.validateThetaSketchAggregator.bind(this)
