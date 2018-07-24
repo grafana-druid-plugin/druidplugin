@@ -31,6 +31,7 @@ function (angular, _, dateMath, moment) {
     instanceSettings.jsonData = instanceSettings.jsonData || {};
     this.supportMetrics = true;
     this.periodGranularity = instanceSettings.jsonData.periodGranularity;
+    this.queryTimeout = instanceSettings.jsonData.queryTimeout;
 
     function replaceTemplateValues(obj, attrList) {
       var substitutedVals = attrList.map(function (attr) {
@@ -286,7 +287,7 @@ function (angular, _, dateMath, moment) {
         "aggregations": aggregators,
         "postAggregations": postAggregators,
         "intervals": intervals,
-        "limitSpec": limitSpec
+        "limitSpec": limitSpec,
       };
 
       if (filters && filters.length > 0) {
@@ -297,6 +298,11 @@ function (angular, _, dateMath, moment) {
     };
 
     this._druidQuery = function (query) {
+      query.context = {};
+      if (this.queryTimeout !== "") {
+        query.context.timeout = this.queryTimeout;
+      }
+
       var options = {
         method: 'POST',
         url: this.url + '/druid/v2/',
