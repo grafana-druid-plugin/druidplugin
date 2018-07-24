@@ -287,7 +287,7 @@ function (angular, _, dateMath, moment) {
         "aggregations": aggregators,
         "postAggregations": postAggregators,
         "intervals": intervals,
-        "limitSpec": limitSpec,
+        "limitSpec": limitSpec
       };
 
       if (filters && filters.length > 0) {
