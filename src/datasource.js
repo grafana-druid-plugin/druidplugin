@@ -40,11 +40,16 @@ function (angular, _, dateMath, moment) {
     }
 
     var GRANULARITIES = [
+      ['second', moment.duration(1, 'second')],
       ['minute', moment.duration(1, 'minute')],
       ['fifteen_minute', moment.duration(15, 'minute')],
       ['thirty_minute', moment.duration(30, 'minute')],
       ['hour', moment.duration(1, 'hour')],
-      ['day', moment.duration(1, 'day')]
+      ['day', moment.duration(1, 'day')],
+      ['week', moment.duration(1, 'week')],
+      ['month', moment.duration(1, 'month')],
+      ['quarter', moment.duration(1, 'quarter')],
+      ['year', moment.duration(1, 'year')]
     ];
 
     var filterTemplateExpanders = {
@@ -126,7 +131,7 @@ function (angular, _, dateMath, moment) {
         var maxDataPointsByResolution = options.maxDataPoints;
         var maxDataPointsByConfig = target.maxDataPoints? target.maxDataPoints : Number.MAX_VALUE;
         var maxDataPoints = Math.min(maxDataPointsByResolution, maxDataPointsByConfig);
-        var granularity = target.shouldOverrideGranularity? target.customGranularity : computeGranularity(from, to, maxDataPoints);
+        var granularity = target.shouldOverrideGranularity? templateSrv.replace(target.customGranularity) : computeGranularity(from, to, maxDataPoints);
         //Round up to start of an interval
         //Width of bar chars in Grafana is determined by size of the smallest interval
         var roundedFrom = granularity === "all" ? from : roundUpStartTime(from, granularity);
