@@ -33,9 +33,17 @@ function (angular, _, dateMath, moment) {
     this.periodGranularity = instanceSettings.jsonData.periodGranularity;
 
     function replaceTemplateValues(obj, attrList) {
-      var substitutedVals = attrList.map(function (attr) {
-        return templateSrv.replace(obj[attr]);
-      });
+      if (obj.type === 'in') {
+        var substitutedVals = attrList.map(function (attr) {
+          return templateSrv.replace(obj[attr], {}, 'csv');
+        });
+        substitutedVals = [substitutedVals[0].split(',')]
+      } else {
+        var substitutedVals = attrList.map(function (attr) {
+          return templateSrv.replace(obj[attr]);
+        });
+      }
+
       return _.assign(_.clone(obj, true), _.zipObject(attrList, substitutedVals));
     }
 
@@ -57,6 +65,7 @@ function (angular, _, dateMath, moment) {
       "regex": _.partialRight(replaceTemplateValues, ['pattern']),
       "javascript": _.partialRight(replaceTemplateValues, ['function']),
       "search": _.partialRight(replaceTemplateValues, []),
+      "in": _.partialRight(replaceTemplateValues, ['values'])
     };
 
     this.testDatasource = function() {
