@@ -36,7 +36,8 @@ function (angular, _, dateMath, moment) {
       if (obj.type === 'in') {
         var substitutedVals = _.chain(attrList)
           .map(attr => { return templateSrv.replace(obj[attr], {}, 'csv')})
-          .map(val => { return val.split(',') }).flatten();
+          .map(val => { return val.split(',') })
+          .value().flatten();
         substitutedVals = [substitutedVals];
       } else {
         var substitutedVals = attrList.map(function (attr) {
