@@ -21,7 +21,8 @@ var DruidQueryCtrl = (function (_super) {
         this.filterValidators = {
             "selector": this.validateSelectorFilter.bind(this),
             "regex": this.validateRegexFilter.bind(this),
-            "javascript": this.validateJavascriptFilter.bind(this)
+            "javascript": this.validateJavascriptFilter.bind(this),
+            "in": this.validateInFilter.bind(this)
         };
         this.aggregatorValidators = {
             "count": this.validateCountAggregator,
@@ -381,6 +382,15 @@ var DruidQueryCtrl = (function (_super) {
         }
         if (!target.currentFilter.pattern) {
             return "Must provide pattern for regex filter.";
+        }
+        return null;
+    };
+    DruidQueryCtrl.prototype.validateInFilter = function (target) {
+        if (!target.currentFilter.dimension) {
+            return "Must provide dimension name for in filter.";
+        }
+        if (!target.currentFilter.values) {
+            return "Must provide values for in filter";
         }
         return null;
     };
