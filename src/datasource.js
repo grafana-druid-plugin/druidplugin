@@ -333,7 +333,7 @@ function (angular, _, dateMath, moment) {
         return filterTemplateExpanders[filter.type](filter);
       })
       .filter(function(filter) {
-         return filter.value!="_REMOVE_FILTER_FOR_ALL_"
+         return filter.value!="_REMOVE_FILTER_"
         }
        )
       .map(function (filter) {
