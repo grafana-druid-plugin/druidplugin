@@ -323,9 +323,14 @@ function (angular, _, dateMath, moment) {
         return filterTemplateExpanders[filter.type](filter, scopedVars);
       })
       .filter(function(filter) {
-         return filter.value!="_REMOVE_FILTER_"
-        }
-       )
+        if(filter.pattern)
+            return filter.pattern!="_REMOVE_FILTER_"
+        else if(filter.value)
+            return filter.value!="_REMOVE_FILTER_"
+        else
+            true
+            }
+        )
       .map(function (filter) {
         var finalFilter = _.omit(filter, 'negate');
         if (filter.negate) {
