@@ -327,6 +327,8 @@ function (angular, _, dateMath, moment) {
             return filter.pattern!="_REMOVE_FILTER_"
         else if(filter.value)
             return filter.value!="_REMOVE_FILTER_"
+        else
+            true
             }
         )
       .map(function (filter) {
