@@ -334,8 +334,8 @@ function (angular, _, dateMath, moment) {
       })
       .filter(function(filter) {
          return filter.value!="_REMOVE_FILTER_FOR_ALL_"
-       }
-      )
+        }
+       )
       .map(function (filter) {
         var finalFilter = _.omit(filter, 'negate');
         if (filter.negate) {
