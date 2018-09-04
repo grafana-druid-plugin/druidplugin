@@ -26,10 +26,8 @@
     </gf-form-switch>
 
     <div class="gf-form" ng-hide="!ctrl.target.shouldOverrideGranularity">
-      <div class="gf-form-select-wrapper max-width-15">
-        <select ng-model="ctrl.target.customGranularity" class="gf-form-input" ng-options="granularity for granularity in ctrl.customGranularity" ng-change="ctrl.targetBlur()">
-        </select>
-      </div>
+        <input type="text" class="gf-form-input input-medium" ng-model="ctrl.target.customGranularity" spellcheck='false' bs-typeahead="ctrl.customGranularity" placeholder="granularity" data-min-length=0 ng-blur="ctrl.targetBlur()">
+        </input>
     </div>
 
     <div class="gf-form max-width-20" ng-hide="ctrl.target.shouldOverrideGranularity">
@@ -279,6 +277,17 @@
             </a>
           </label>
         </div>
+        <div ng-switch-when="cardinality">
+          <label class="gf-form-label">
+            {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}},&nbsp;fieldNames&nbsp;=&nbsp;{{aggregator.fieldNames}}
+            <a ng-click="ctrl.editAggregator($index)">
+              <i class="fa fa-pencil"></i>
+            </a>
+            <a ng-click="ctrl.removeAggregator($index)">
+              <i class="fa fa-remove"></i>
+            </a>
+          </label>
+        </div>
         <div ng-switch-when="longSum">
           <label class="gf-form-label">
             {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}},&nbsp;fieldName&nbsp;=&nbsp;{{aggregator.fieldName}}
@@ -323,6 +332,17 @@
           </a>
           </label>
         </div>
+        <div ng-switch-when="thetaSketch">
+          <label class="gf-form-label">
+          {{aggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{aggregator.name}},&nbsp;fieldName&nbsp;=&nbsp;{{aggregator.fieldName}}
+            <a ng-click="ctrl.editAggregator($index)">
+              <i class="fa fa-pencil"></i>
+            </a>
+          <a ng-click="ctrl.removeAggregator($index)">
+            <i class="fa fa-remove"></i>
+          </a>
+          </label>
+        </div>
       </div>
       <label class="gf-form-label" ng-if="aggregator.hidden">&nbsp;)</label>
     </div>
@@ -339,6 +359,11 @@
     <div class="gf-form" ng-show="ctrl.addAggregatorMode" ng-switch on="ctrl.target.currentAggregator.type">
       <input type="text" ng-switch-when="count" class="input-small gf-form-input" spellcheck='false' ng-model="ctrl.target.currentAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
       <gf-form-switch ng-switch-when="count" class="gf-form" label="Hidden" label-class="query-keyword" checked="ctrl.target.currentAggregator.hidden"></gf-form-switch>
+    </div>
+    <div class="gf-form" ng-show="ctrl.addAggregatorMode" ng-switch on="ctrl.target.currentAggregator.type">
+      <input type="text" ng-switch-when="cardinality" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
+      <input type="text" ng-switch-when="cardinality" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.fieldNames" ng-blur="ctrl.targetBlur()" placeholder="metric name" bs-typeahead="ctrl.getMetricsPlusDimensions" data-min-length=0>
+      <gf-form-switch ng-switch-when="cardinality" class="gf-form" label="Hidden" label-class="query-keyword" checked="ctrl.target.currentAggregator.hidden"></gf-form-switch>
     </div>
     <div class="gf-form" ng-show="ctrl.addAggregatorMode" ng-switch on="ctrl.target.currentAggregator.type">
       <input type="text" ng-switch-when="longSum" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
@@ -363,6 +388,12 @@
       <input type="text" ng-switch-when="hyperUnique" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.fieldName" ng-blur="ctrl.targetBlur()" placeholder="metric name" bs-typeahead="ctrl.getMetrics" data-min-length=0>
       <gf-form-switch ng-switch-when="hyperUnique" class="gf-form" label="Hidden" label-class="query-keyword" checked="ctrl.target.currentAggregator.hidden"></gf-form-switch>
     </div>
+    <div class="gf-form" ng-show="ctrl.addAggregatorMode" ng-switch on="ctrl.target.currentAggregator.type">
+      <input type="text" ng-switch-when="thetaSketch" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
+      <input type="text" ng-switch-when="thetaSketch" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.fieldName" ng-blur="ctrl.targetBlur()" placeholder="metric name" bs-typeahead="ctrl.getMetrics" data-min-length=0>
+      <gf-form-switch ng-switch-when="thetaSketch" class="gf-form" label="isInputThetaSketch" label-class="query-keyword" checked="ctrl.target.currentAggregator.isInputThetaSketch"></gf-form-switch>
+      <input type="text" ng-switch-when="thetaSketch" class="input-small gf-form-input width-10" spellcheck='false' ng-model="ctrl.target.currentAggregator.size" ng-blur="ctrl.targetBlur()" placeholder="size" data-min-length=0>
+    </div>
     <div class="gf-form" ng-show="ctrl.addAggregatorMode">
       <label class="gf-form-label">
         <a ng-click="ctrl.addAggregator()">add tag</a>
@@ -385,6 +416,22 @@
       <div ng-switch-when="arithmetic">
         <label class="gf-form-label">
           {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;fn&nbsp;=&nbsp;{{postAggregator.fn}}, &nbsp;fields&nbsp;=&nbsp;{{postAggregator.fields}}
+          <a ng-click="ctrl.removePostAggregator($index)">
+            <i class="fa fa-remove"></i>
+          </a>
+        </label>
+      </div>
+      <div ng-switch-when="max">
+        <label class="gf-form-label">
+          {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;field&nbsp;=&nbsp;{{postAggregator.fieldName}}
+          <a ng-click="ctrl.removePostAggregator($index)">
+            <i class="fa fa-remove"></i>
+          </a>
+        </label>
+      </div>
+      <div ng-switch-when="min">
+        <label class="gf-form-label">
+          {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;field&nbsp;=&nbsp;{{postAggregator.fieldName}}
           <a ng-click="ctrl.removePostAggregator($index)">
             <i class="fa fa-remove"></i>
           </a>
@@ -415,6 +462,18 @@
     <input type="text" ng-switch-when="arithmetic" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
     <select ng-switch-when="arithmetic" class="input-small gf-form-input" ng-model="ctrl.target.currentPostAggregator.fn" ng-options="fn for fn in ctrl.arithmeticPostAggregator" ng-change="ctrl.targetBlur()"></select>
     <input type="text" ng-switch-when="arithmetic" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.fields" placeholder="field1,field2" ng-blur="ctrl.targetBlur()">
+  </div>
+
+  <!-- max -->
+  <div class="gf-form" ng-show="ctrl.addPostAggregatorMode" ng-switch on="ctrl.target.currentPostAggregator.type">
+    <input type="text" ng-switch-when="max" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
+    <input type="text" ng-switch-when="max" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.fieldName" placeholder="agg name" ng-blur="ctrl.targetBlur()">
+  </div>
+
+  <!-- min -->
+  <div class="gf-form" ng-show="ctrl.addPostAggregatorMode" ng-switch on="ctrl.target.currentPostAggregator.type">
+    <input type="text" ng-switch-when="min" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.name" placeholder="output name" ng-blur="ctrl.targetBlur()">
+    <input type="text" ng-switch-when="min" class="input-small gf-form-input" spellcheck="false" ng-model="ctrl.target.currentPostAggregator.fieldName" placeholder="agg name" ng-blur="ctrl.targetBlur()">
   </div>
 
   <!-- quantile -->

@@ -15,6 +15,7 @@ export class DruidQueryCtrl extends QueryCtrl {
   listDataSources: any;
   getDimensionsAndMetrics: any;
   getMetrics: any;
+  getMetricsPlusDimensions: any;
   getDimensions: any;
   getFilterValues: any;
   queryTypes: any;
@@ -39,13 +40,17 @@ export class DruidQueryCtrl extends QueryCtrl {
     };
     aggregatorValidators = {
       "count": this.validateCountAggregator,
+      "cardinality": _.partial(this.validateCardinalityAggregator.bind(this), 'cardinality'),
       "longSum": _.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
       "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
       "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
-      "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
+      "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
+      "thetaSketch": this.validateThetaSketchAggregator.bind(this)
     };
     postAggregatorValidators = {
       "arithmetic": this.validateArithmeticPostAggregator.bind(this),
+      "max": this.validateMaxPostAggregator.bind(this),
+      "min": this.validateMinPostAggregator.bind(this),
       "quantile": this.validateQuantilePostAggregator.bind(this)
     };
 
@@ -54,7 +59,7 @@ export class DruidQueryCtrl extends QueryCtrl {
     defaultFilterType = "selector";
     defaultAggregatorType = "count";
     defaultPostAggregator = {type: 'arithmetic', 'fn': '+'};
-    customGranularities = ['minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'all'];
+    customGranularities = ['second', 'minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'week', 'month', 'quarter', 'year', 'all'];
     defaultCustomGranularity = 'minute';
     defaultSelectDimension = "";
     defaultSelectMetric = "";
@@ -119,6 +124,13 @@ export class DruidQueryCtrl extends QueryCtrl {
     return this.datasource.getDimensionsAndMetrics(this.target.druidDS)
      .then(function (dimsAndMetrics) {
      callback(dimsAndMetrics.metrics);
+     });
+    };
+
+    this.getMetricsPlusDimensions = (query, callback) => {
+    return this.datasource.getDimensionsAndMetrics(this.target.druidDS)
+     .then(function (dimsAndMetrics) {
+     callback([].concat(dimsAndMetrics.metrics).concat(dimsAndMetrics.dimensions));
      });
     };
 
@@ -453,6 +465,14 @@ export class DruidQueryCtrl extends QueryCtrl {
       return null;
     }
 
+    validateCardinalityAggregator(type, target) {
+      if (!target.currentAggregator.name) {
+        return "Must provide an output name for " + type + " aggregator.";
+      }
+    
+      return null;
+    }
+
     validateSimpleAggregator(type, target) {
       if (!target.currentAggregator.name) {
         return "Must provide an output name for " + type + " aggregator.";
@@ -472,6 +492,12 @@ export class DruidQueryCtrl extends QueryCtrl {
       return null;
     }
 
+    validateThetaSketchAggregator(target) {
+      var err = this.validateSimpleAggregator('thetaSketch', target);
+      if (err) { return err;}
+      return null;
+    }
+
     validateSimplePostAggregator(type, target) {
       if (!target.currentPostAggregator.name) {
         return "Must provide an output name for " + type + " post aggregator.";
@@ -480,6 +506,18 @@ export class DruidQueryCtrl extends QueryCtrl {
         return "Must provide an aggregator name for " + type + " post aggregator.";
       }
       //TODO - check that fieldName is a valid aggregation (exists and of correct type)
+      return null;
+    }
+
+    validateMaxPostAggregator(target) {
+      var err = this.validateSimplePostAggregator('max', target);
+      if (err) { return err; }
+      return null;
+    }
+
+    validateMinPostAggregator(target) {
+      var err = this.validateSimplePostAggregator('min', target);
+      if (err) { return err; }
       return null;
     }
 

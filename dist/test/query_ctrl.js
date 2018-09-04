@@ -25,13 +25,17 @@ var DruidQueryCtrl = (function (_super) {
         };
         this.aggregatorValidators = {
             "count": this.validateCountAggregator,
+            "cardinality": lodash_1.default.partial(this.validateCardinalityAggregator.bind(this), 'cardinality'),
             "longSum": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
             "doubleSum": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
             "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
-            "hyperUnique": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique')
+            "hyperUnique": lodash_1.default.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
+            "thetaSketch": this.validateThetaSketchAggregator.bind(this)
         };
         this.postAggregatorValidators = {
             "arithmetic": this.validateArithmeticPostAggregator.bind(this),
+            "max": this.validateMaxPostAggregator.bind(this),
+            "min": this.validateMinPostAggregator.bind(this),
             "quantile": this.validateQuantilePostAggregator.bind(this)
         };
         this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
@@ -39,7 +43,7 @@ var DruidQueryCtrl = (function (_super) {
         this.defaultFilterType = "selector";
         this.defaultAggregatorType = "count";
         this.defaultPostAggregator = { type: 'arithmetic', 'fn': '+' };
-        this.customGranularities = ['minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'all'];
+        this.customGranularities = ['second', 'minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'week', 'month', 'quarter', 'year', 'all'];
         this.defaultCustomGranularity = 'minute';
         this.defaultSelectDimension = "";
         this.defaultSelectMetric = "";
@@ -89,6 +93,12 @@ var DruidQueryCtrl = (function (_super) {
             return _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
                 .then(function (dimsAndMetrics) {
                 callback(dimsAndMetrics.metrics);
+            });
+        };
+        this.getMetricsPlusDimensions = function (query, callback) {
+            return _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
+                .then(function (dimsAndMetrics) {
+                callback([].concat(dimsAndMetrics.metrics).concat(dimsAndMetrics.dimensions));
             });
         };
         this.getDimensionsAndMetrics = function (query, callback) {
@@ -380,6 +390,12 @@ var DruidQueryCtrl = (function (_super) {
         }
         return null;
     };
+    DruidQueryCtrl.prototype.validateCardinalityAggregator = function (type, target) {
+        if (!target.currentAggregator.name) {
+            return "Must provide an output name for " + type + " aggregator.";
+        }
+        return null;
+    };
     DruidQueryCtrl.prototype.validateSimpleAggregator = function (type, target) {
         if (!target.currentAggregator.name) {
             return "Must provide an output name for " + type + " aggregator.";
@@ -399,6 +415,13 @@ var DruidQueryCtrl = (function (_super) {
         //TODO - check that lowerLimit and upperLimit are flots (if given)
         return null;
     };
+    DruidQueryCtrl.prototype.validateThetaSketchAggregator = function (target) {
+        var err = this.validateSimpleAggregator('thetaSketch', target);
+        if (err) {
+            return err;
+        }
+        return null;
+    };
     DruidQueryCtrl.prototype.validateSimplePostAggregator = function (type, target) {
         if (!target.currentPostAggregator.name) {
             return "Must provide an output name for " + type + " post aggregator.";
@@ -407,6 +430,20 @@ var DruidQueryCtrl = (function (_super) {
             return "Must provide an aggregator name for " + type + " post aggregator.";
         }
         //TODO - check that fieldName is a valid aggregation (exists and of correct type)
+        return null;
+    };
+    DruidQueryCtrl.prototype.validateMaxPostAggregator = function (target) {
+        var err = this.validateSimplePostAggregator('max', target);
+        if (err) {
+            return err;
+        }
+        return null;
+    };
+    DruidQueryCtrl.prototype.validateMinPostAggregator = function (target) {
+        var err = this.validateSimplePostAggregator('min', target);
+        if (err) {
+            return err;
+        }
         return null;
     };
     DruidQueryCtrl.prototype.validateQuantilePostAggregator = function (target) {

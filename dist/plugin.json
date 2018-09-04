@@ -6,7 +6,7 @@
   "metrics": true,
 
   "info": {
-    "version": "0.0.4",
+    "version": "0.0.5",
     "author": {
       "name": "Abhishek Sant",
       "url": "https://github.com/grafana-druid-plugin/druidplugin"
