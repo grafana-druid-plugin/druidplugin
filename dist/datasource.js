@@ -32,19 +32,30 @@ function (angular, _, dateMath, moment) {
     this.supportMetrics = true;
     this.periodGranularity = instanceSettings.jsonData.periodGranularity;
 
-    function replaceTemplateValues(obj, scopedVars, attrList) {
-      var substitutedVals = attrList.map(function (attr) {
-        return templateSrv.replace(obj[attr], scopedVars);
-      });
-      return _.assign(_.clone(obj, true), _.zipObject(attrList, substitutedVals));
-    }
+    function replaceTemplateValues(obj,scopedVars, attrList) {
+      if (obj.type === 'in') {
+        var substitutedVals = _.chain(attrList)
+          .map(attr => { return templateSrv.replace(obj[attr]).replace(/[{}]/g, "") })
+          .map(val => { return val.split(',') })
+          .value().flatten();
+        substitutedVals = [substitutedVals];
+      } else {
+        var substitutedVals = attrList.map(function (attr) {
+          return templateSrv.replace(obj[attr],scopedVars);
+        });
+      }
 
     var GRANULARITIES = [
+      ['second', moment.duration(1, 'second')],
       ['minute', moment.duration(1, 'minute')],
       ['fifteen_minute', moment.duration(15, 'minute')],
       ['thirty_minute', moment.duration(30, 'minute')],
       ['hour', moment.duration(1, 'hour')],
-      ['day', moment.duration(1, 'day')]
+      ['day', moment.duration(1, 'day')],
+      ['week', moment.duration(1, 'week')],
+      ['month', moment.duration(1, 'month')],
+      ['quarter', moment.duration(1, 'quarter')],
+      ['year', moment.duration(1, 'year')]
     ];
 
     var filterTemplateExpanders = {
@@ -52,6 +63,7 @@ function (angular, _, dateMath, moment) {
       "regex": _.partialRight(replaceTemplateValues, ['pattern']),
       "javascript": _.partialRight(replaceTemplateValues, ['function']),
       "search": _.partialRight(replaceTemplateValues, []),
+      "in": _.partialRight(replaceTemplateValues, ['values'])
     };
 
     this.testDatasource = function() {
@@ -129,7 +141,7 @@ function (angular, _, dateMath, moment) {
         var maxDataPointsByResolution = options.maxDataPoints;
         var maxDataPointsByConfig = target.maxDataPoints? target.maxDataPoints : Number.MAX_VALUE;
         var maxDataPoints = Math.min(maxDataPointsByResolution, maxDataPointsByConfig);
-        var granularity = target.shouldOverrideGranularity? target.customGranularity : computeGranularity(from, to, maxDataPoints);
+        var granularity = target.shouldOverrideGranularity? templateSrv.replace(target.customGranularity) : computeGranularity(from, to, maxDataPoints);
         //Round up to start of an interval
         //Width of bar chars in Grafana is determined by size of the smallest interval
         var roundedFrom = granularity === "all" ? from : roundUpStartTime(from, granularity);
@@ -147,11 +159,19 @@ function (angular, _, dateMath, moment) {
     };
 
     this._doQuery = function (from, to, granularity, target, scopedVars) {
+
+      function splitCardinalityFields(aggregator) {
+        if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
+          aggregator.fieldNames = aggregator.fieldNames.split(',')
+        }
+        return aggregator;
+      }
+
       var datasource = target.druidDS;
       var filters = target.filters;
-      var aggregators = target.aggregators;
+      var aggregators = target.aggregators.map(splitCardinalityFields);
       var postAggregators = target.postAggregators;
-      var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e, scopedVars) });
+      var groupBy = _.map(target.groupBy, (e) => { return templateSrv.replace(e) });
       var limitSpec = null;
       var metricNames = getMetricNames(aggregators, postAggregators);
       var intervals = getQueryIntervals(from, to);
@@ -167,7 +187,7 @@ function (angular, _, dateMath, moment) {
       if (target.queryType === 'topN') {
         var threshold = target.limit;
         var metric = target.druidMetric;
-        var dimension = templateSrv.replace(target.dimension, scopedVars);
+        var dimension = templateSrv.replace(target.dimension);
         promise = this._topNQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, threshold, metric, dimension, scopedVars)
           .then(function(response) {
             return convertTopNData(response.data, dimension, metric);
