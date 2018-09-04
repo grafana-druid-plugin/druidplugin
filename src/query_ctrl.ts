@@ -36,7 +36,8 @@ export class DruidQueryCtrl extends QueryCtrl {
     filterValidators = {
       "selector": this.validateSelectorFilter.bind(this),
       "regex": this.validateRegexFilter.bind(this),
-      "javascript": this.validateJavascriptFilter.bind(this)
+      "javascript": this.validateJavascriptFilter.bind(this),
+      "in": this.validateInFilter.bind(this)
     };
     aggregatorValidators = {
       "count": this.validateCountAggregator,
@@ -455,6 +456,18 @@ export class DruidQueryCtrl extends QueryCtrl {
       if (!target.currentFilter.pattern) {
         return "Must provide pattern for regex filter.";
       }
+      return null;
+    }
+
+    validateInFilter(target) {
+      if (!target.currentFilter.dimension) {
+        return "Must provide dimension name for in filter.";
+      }
+
+      if (!target.currentFilter.values) {
+        return "Must provide values for in filter"
+      }
+
       return null;
     }
 
