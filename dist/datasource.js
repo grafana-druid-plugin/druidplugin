@@ -44,6 +44,8 @@ function (angular, _, dateMath, moment) {
           return templateSrv.replace(obj[attr],scopedVars);
         });
       }
+      return _.assign(_.clone(obj, true), _.zipObject(attrList, substitutedVals));
+    }
 
     var GRANULARITIES = [
       ['second', moment.duration(1, 'second')],
