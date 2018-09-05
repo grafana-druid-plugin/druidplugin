@@ -1,3 +1,7 @@
+# UPDATE
+
+We are working to refresh this codebase. Please see the [milestones](https://github.com/grafana-druid-plugin/druidplugin/milestones) for current estimated dates and related issues / projects for planned work. 
+
 ## Grafana Version Compatibility:
 **Druid plugin version 0.0.3 and below are supported for Grafana: 3.x.x**
 
