@@ -332,6 +332,15 @@ function (angular, _, dateMath, moment) {
       var replacedFilters = filters.map(function (filter) {
         return filterTemplateExpanders[filter.type](filter);
       })
+      .filter(function(filter) {
+        if(filter.pattern)
+            return filter.pattern!="_REMOVE_FILTER_"
+        else if(filter.value)
+            return filter.value!="_REMOVE_FILTER_"
+        else
+            return true
+        }
+      )
       .map(function (filter) {
         var finalFilter = _.omit(filter, 'negate');
         if (filter.negate) {
