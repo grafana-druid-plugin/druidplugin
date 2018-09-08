@@ -31,6 +31,7 @@ function (angular, _, dateMath, moment) {
     instanceSettings.jsonData = instanceSettings.jsonData || {};
     this.supportMetrics = true;
     this.periodGranularity = instanceSettings.jsonData.periodGranularity;
+    this.queryTimeout = instanceSettings.jsonData.queryTimeout;
 
     function replaceTemplateValues(obj, attrList) {
       var substitutedVals = attrList.map(function (attr) {
@@ -307,6 +308,11 @@ function (angular, _, dateMath, moment) {
     };
 
     this._druidQuery = function (query) {
+      if (this.queryTimeout != null) {
+        query.context = {};
+        query.context.timeout = this.queryTimeout;
+      }
+
       var options = {
         method: 'POST',
         url: this.url + '/druid/v2/',
