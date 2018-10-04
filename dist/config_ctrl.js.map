@@ -1,1 +1,1 @@
-{"version":3,"file":"config_ctrl.js","sourceRoot":"","sources":["config_ctrl.ts"],"names":["DruidConfigCtrl","DruidConfigCtrl.constructor"],"mappings":"AAAA,8CAA8C;;;;;;YAK9C;gBAAAA;gBAGAC,CAACA;gBAFQD,2BAAWA,GAAGA,sBAAsBA,CAACA;gBAE9CA,sBAACA;YAADA,CAACA,AAHD,IAGC;YAHD,6CAGC,CAAA"}
+{"version":3,"file":"config_ctrl.js","sourceRoot":"","sources":["config_ctrl.ts"],"names":[],"mappings":";;;;;;;;gBAME,yBAAY,MAAM;gBAClB,CAAC;gBAJM,2BAAW,GAAG,sBAAsB,CAAC;gBAK9C,sBAAC;aAAA,AAND;;QAOA,CAAC"}

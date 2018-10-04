@@ -1,0 +1,16 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+      "target": "ES6",
+      "module": "system",
+      "sourceMap": true,
+      "declaration": true,
+      "emitDecoratorMetadata": true,
+      "experimentalDecorators": true,
+      "noImplicitAny": false,
+      "outDir": "dist/"
+  },
+  "exclude": [
+      "node_modules"
+  ]
+}

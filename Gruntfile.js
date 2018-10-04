@@ -1,122 +1,107 @@
 module.exports = function(grunt) {
-
   require('load-grunt-tasks')(grunt);
 
-  grunt.loadNpmTasks('grunt-execute');
+  var pkgJson = require('./package.json');
+
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-ts');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-string-replace');
 
   grunt.initConfig({
-
-    clean: ["dist"],
+    clean: ['dist'],
 
     copy: {
-      src_to_dist: {
-        cwd: 'src',
+      dist_js: {
         expand: true,
-        src: ['**/*', '**/*.js', '!**/*.scss'],
+        cwd: 'src',
+        src: ['**/*.ts', '**/*.d.ts'],
         dest: 'dist'
       },
-      pluginDef: {
+      dist_html: {
         expand: true,
-        src: ['README.md'],
-        dest: 'dist'
+        flatten: true,
+        cwd: 'src/partials',
+        src: ['*.html'],
+        dest: 'dist/partials/'
+      },
+      dist_css: {
+        expand: true,
+        flatten: true,
+        cwd: 'src/css',
+        src: ['*.css'],
+        dest: 'dist/css/'
+      },
+      dist_img: {
+        expand: true,
+        flatten: true,
+        cwd: 'src/img',
+        src: ['*.*'],
+        dest: 'dist/img/'
+      },
+      dist_statics: {
+        expand: true,
+        flatten: true,
+        src: ['src/plugin.json', 'LICENSE', 'README.md'],
+        dest: 'dist/'
+      }
+    },
+
+    ts: {
+      default: {
+        src: ['dist/**/*.ts', '!**/*.d.ts'],
+        dest: 'dist',
+        options: {
+          module: 'system',
+          target: 'es5',
+          rootDir: 'dist/',
+          declaration: true,
+          emitDecoratorMetadata: true,
+          experimentalDecorators: true,
+          sourceMap: true,
+          noImplicitAny: false,
+          skipLibCheck: true
+        }
+      },
+    },
+
+    'string-replace': {
+      dist: {
+        files: [{
+          cwd: 'src',
+          expand: true,
+          src: ["**/plugin.json"],
+          dest: 'dist'
+        }],
+        options: {
+          replacements: [{
+            pattern: '%VERSION%',
+            replacement: pkgJson.version
+          },{
+            pattern: '%TODAY%',
+            replacement: '<%= grunt.template.today("yyyy-mm-dd") %>'
+          }]
+        }
       }
     },
 
     watch: {
-      rebuild_all: {
-        files: ['src/**/*'],
-        tasks: ['watch-ts'],
-        options: {spawn: false}
-      }
-    },
-
-    typescript: {
-      build: {
-        src: ['dist/**/*.ts', "!src/spec/**/*", "!**/*.d.ts"],
-        dest: 'dist/',
-        options: {
-          module: 'system', //or commonjs
-          target: 'es3', //or es5
-          rootDir: 'dist/',
-          keepDirectoryHierarchy: false,
-          declaration: true,
-          emitDecoratorMetadata: true,
-          experimentalDecorators: true,
-          sourceMap: true,
-          noImplicitAny: false,
-        }
-      },
-      distTests: {
-        src: ['src/**/*.ts', "!src/spec/**/*", "!**/*.d.ts"],
-        dest: 'dist/test/',
-        options: {
-          module: 'commonjs', //or commonjs
-          target: 'es5', //or es5
-          rootDir: 'src/',
-          sourceRoot: 'src/',
-          declaration: true,
-          emitDecoratorMetadata: true,
-          experimentalDecorators: true,
-          sourceMap: true,
-          noImplicitAny: false,
-        }
-      },
-      // distTestsSpecs: {
-      //   src: ['src/spec/**/*.ts'],
-      //   dest: 'dist/test/',
-      //   options: {
-      //     module: 'commonjs', //or commonjs
-      //     target: 'es5', //or es5
-      //     declaration: true,
-      //     emitDecoratorMetadata: true,
-      //     experimentalDecorators: true,
-      //     sourceMap: true,
-      //     noImplicitAny: false,
-      //   }
-      // }
-    },
-
-    babel: {
+      files: ['src/**/*.ts', 'src/**/*.html', 'src/**/*.css', 'src/img/*.*', 'src/plugin.json', 'README.md'],
+      tasks: ['default'],
       options: {
-        sourceMap: true,
-        presets:  ['es2015']
+        debounceDelay: 250,
       },
-      distTestsSpecsNoSystemJs: {
-        files: [{
-          expand: true,
-          cwd: 'src/spec',
-          src: ['**/*.js'],
-          dest: 'dist/test/spec',
-          ext:'.js'
-        }]
-      }
-    },
-
-    mochaTest: {
-      test: {
-        options: {
-          reporter: 'spec'
-        },
-        src: ['dist/test/spec/test-main.js', 'dist/test/spec/*_specs.js']
-      }
     }
   });
 
   grunt.registerTask('default', [
     'clean',
-    'copy',
-    'typescript:build',
-    'typescript:distTests',
-    'babel',
-    'mochaTest'
-  ]);
-
-  grunt.registerTask('watch-ts', [
-    'clean',
-    'copy:src_to_dist',
-    'copy:pluginDef',
-    'typescript:build'
+    'copy:dist_js',
+    'ts',
+    'copy:dist_html',
+    'copy:dist_css',
+    'copy:dist_img',
+    'copy:dist_statics',
+    'string-replace'
   ]);
 };
-

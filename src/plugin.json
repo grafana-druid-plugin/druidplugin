@@ -1,12 +1,12 @@
 {
   "type": "datasource",
   "name": "Druid",
-  "id": "abhisant-druid-datasource",
+  "id": "paypal-druid-datasource",
 
   "metrics": true,
 
   "info": {
-    "version": "0.0.5",
+    "version": "0.0.6",
     "author": {
       "name": "Abhishek Sant",
       "url": "https://github.com/grafana-druid-plugin/druidplugin"
