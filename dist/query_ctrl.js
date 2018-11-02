@@ -1,138 +1,141 @@
-///<reference path="../headers/common.d.ts" />
-System.register(['lodash', './sdk/sdk'], function(exports_1) {
-    var __extends = (this && this.__extends) || function (d, b) {
-        for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-    var lodash_1, sdk_1;
-    var DruidQueryCtrl;
+System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], function (exports_1, context_1) {
+    "use strict";
+    var __extends = (this && this.__extends) || (function () {
+        var extendStatics = function (d, b) {
+            extendStatics = Object.setPrototypeOf ||
+                ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+                function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+            return extendStatics(d, b);
+        }
+        return function (d, b) {
+            extendStatics(d, b);
+            function __() { this.constructor = d; }
+            d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+        };
+    })();
+    var lodash_1, sdk_1, DruidQueryCtrl;
+    var __moduleName = context_1 && context_1.id;
     return {
-        setters:[
+        setters: [
             function (lodash_1_1) {
                 lodash_1 = lodash_1_1;
             },
             function (sdk_1_1) {
                 sdk_1 = sdk_1_1;
-            }],
-        execute: function() {
+            },
+            function (_1) {
+            }
+        ],
+        execute: function () {
             DruidQueryCtrl = (function (_super) {
                 __extends(DruidQueryCtrl, _super);
-                /** @ngInject **/
                 function DruidQueryCtrl($scope, $injector, $q) {
-                    var _this = this;
-                    _super.call(this, $scope, $injector);
-                    this.queryTypeValidators = {
-                        "timeseries": lodash_1["default"].noop.bind(this),
-                        "groupBy": this.validateGroupByQuery.bind(this),
-                        "topN": this.validateTopNQuery.bind(this),
-                        "select": this.validateSelectQuery.bind(this)
+                    var _this = _super.call(this, $scope, $injector) || this;
+                    _this.queryTypeValidators = {
+                        "timeseries": lodash_1.default.noop.bind(_this),
+                        "groupBy": _this.validateGroupByQuery.bind(_this),
+                        "topN": _this.validateTopNQuery.bind(_this),
+                        "select": _this.validateSelectQuery.bind(_this)
                     };
-                    this.filterValidators = {
-                        "selector": this.validateSelectorFilter.bind(this),
-                        "regex": this.validateRegexFilter.bind(this),
-                        "javascript": this.validateJavascriptFilter.bind(this)
+                    _this.filterValidators = {
+                        "selector": _this.validateSelectorFilter.bind(_this),
+                        "regex": _this.validateRegexFilter.bind(_this),
+                        "javascript": _this.validateJavascriptFilter.bind(_this)
                     };
-                    this.aggregatorValidators = {
-                        "count": this.validateCountAggregator,
-                        "cardinality": lodash_1["default"].partial(this.validateCardinalityAggregator.bind(this), 'cardinality'),
-                        "longSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'longSum'),
-                        "doubleSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
-                        "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
-                        "hyperUnique": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
-                        "thetaSketch": this.validateThetaSketchAggregator.bind(this)
+                    _this.aggregatorValidators = {
+                        "count": _this.validateCountAggregator,
+                        "cardinality": lodash_1.default.partial(_this.validateCardinalityAggregator.bind(_this), 'cardinality'),
+                        "longSum": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'longSum'),
+                        "doubleSum": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'doubleSum'),
+                        "approxHistogramFold": _this.validateApproxHistogramFoldAggregator.bind(_this),
+                        "hyperUnique": lodash_1.default.partial(_this.validateSimpleAggregator.bind(_this), 'hyperUnique'),
+                        "thetaSketch": _this.validateThetaSketchAggregator.bind(_this)
                     };
-                    this.postAggregatorValidators = {
-                        "arithmetic": this.validateArithmeticPostAggregator.bind(this),
-                        "max": this.validateMaxPostAggregator.bind(this),
-                        "min": this.validateMinPostAggregator.bind(this),
-                        "quantile": this.validateQuantilePostAggregator.bind(this)
+                    _this.postAggregatorValidators = {
+                        "arithmetic": _this.validateArithmeticPostAggregator.bind(_this),
+                        "max": _this.validateMaxPostAggregator.bind(_this),
+                        "min": _this.validateMinPostAggregator.bind(_this),
+                        "quantile": _this.validateQuantilePostAggregator.bind(_this)
                     };
-                    this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
-                    this.defaultQueryType = "timeseries";
-                    this.defaultFilterType = "selector";
-                    this.defaultAggregatorType = "count";
-                    this.defaultPostAggregator = { type: 'arithmetic', 'fn': '+' };
-                    this.customGranularities = ['second', 'minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'week', 'month', 'quarter', 'year', 'all'];
-                    this.defaultCustomGranularity = 'minute';
-                    this.defaultSelectDimension = "";
-                    this.defaultSelectMetric = "";
-                    this.defaultLimit = 5;
-                    if (!this.target.queryType) {
-                        this.target.queryType = this.defaultQueryType;
+                    _this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
+                    _this.defaultQueryType = "timeseries";
+                    _this.defaultFilterType = "selector";
+                    _this.defaultAggregatorType = "count";
+                    _this.defaultPostAggregator = { type: 'arithmetic', 'fn': '+' };
+                    _this.customGranularities = ['second', 'minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'week', 'month', 'quarter', 'year', 'all'];
+                    _this.defaultCustomGranularity = 'minute';
+                    _this.defaultSelectDimension = "";
+                    _this.defaultSelectMetric = "";
+                    _this.defaultLimit = 5;
+                    if (!_this.target.queryType) {
+                        _this.target.queryType = _this.defaultQueryType;
                     }
-                    this.queryTypes = lodash_1["default"].keys(this.queryTypeValidators);
-                    this.filterTypes = lodash_1["default"].keys(this.filterValidators);
-                    this.aggregatorTypes = lodash_1["default"].keys(this.aggregatorValidators);
-                    this.postAggregatorTypes = lodash_1["default"].keys(this.postAggregatorValidators);
-                    this.arithmeticPostAggregator = lodash_1["default"].keys(this.arithmeticPostAggregatorFns);
-                    this.customGranularity = this.customGranularities;
-                    this.errors = this.validateTarget();
-                    if (!this.target.currentFilter) {
-                        this.clearCurrentFilter();
+                    _this.queryTypes = lodash_1.default.keys(_this.queryTypeValidators);
+                    _this.filterTypes = lodash_1.default.keys(_this.filterValidators);
+                    _this.aggregatorTypes = lodash_1.default.keys(_this.aggregatorValidators);
+                    _this.postAggregatorTypes = lodash_1.default.keys(_this.postAggregatorValidators);
+                    _this.arithmeticPostAggregator = lodash_1.default.keys(_this.arithmeticPostAggregatorFns);
+                    _this.customGranularity = _this.customGranularities;
+                    _this.errors = _this.validateTarget();
+                    if (!_this.target.currentFilter) {
+                        _this.clearCurrentFilter();
                     }
-                    if (!this.target.currentSelect) {
-                        this.target.currentSelect = {};
-                        this.clearCurrentSelectDimension();
-                        this.clearCurrentSelectMetric();
+                    if (!_this.target.currentSelect) {
+                        _this.target.currentSelect = {};
+                        _this.clearCurrentSelectDimension();
+                        _this.clearCurrentSelectMetric();
                     }
-                    if (!this.target.currentAggregator) {
-                        this.clearCurrentAggregator();
+                    if (!_this.target.currentAggregator) {
+                        _this.clearCurrentAggregator();
                     }
-                    if (!this.target.currentPostAggregator) {
-                        this.clearCurrentPostAggregator();
+                    if (!_this.target.currentPostAggregator) {
+                        _this.clearCurrentPostAggregator();
                     }
-                    if (!this.target.customGranularity) {
-                        this.target.customGranularity = this.defaultCustomGranularity;
+                    if (!_this.target.customGranularity) {
+                        _this.target.customGranularity = _this.defaultCustomGranularity;
                     }
-                    if (!this.target.limit) {
-                        this.target.limit = this.defaultLimit;
+                    if (!_this.target.limit) {
+                        _this.target.limit = _this.defaultLimit;
                     }
-                    // needs to be defined here as it is called from typeahead
-                    this.listDataSources = function (query, callback) {
+                    _this.listDataSources = function (query, callback) {
                         _this.datasource.getDataSources()
                             .then(callback);
                     };
-                    this.getDimensions = function (query, callback) {
+                    _this.getDimensions = function (query, callback) {
                         return _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
                             .then(function (dimsAndMetrics) {
                             callback(dimsAndMetrics.dimensions);
                         });
                     };
-                    this.getMetrics = function (query, callback) {
+                    _this.getMetrics = function (query, callback) {
                         return _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
                             .then(function (dimsAndMetrics) {
                             callback(dimsAndMetrics.metrics);
                         });
                     };
-                    this.getMetricsPlusDimensions = function (query, callback) {
+                    _this.getMetricsPlusDimensions = function (query, callback) {
                         return _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
                             .then(function (dimsAndMetrics) {
                             callback([].concat(dimsAndMetrics.metrics).concat(dimsAndMetrics.dimensions));
                         });
                     };
-                    this.getDimensionsAndMetrics = function (query, callback) {
-                        console.log("getDimensionsAndMetrics.query: " + query);
+                    _this.getDimensionsAndMetrics = function (query, callback) {
                         _this.datasource.getDimensionsAndMetrics(_this.target.druidDS)
                             .then(callback);
                     };
-                    this.getFilterValues = function (query, callback) {
+                    _this.getFilterValues = function (query, callback) {
                         var dimension = _this.target.currentFilter.dimension;
                         _this.datasource.getFilterValues(_this.target, _this.panelCtrl.range, query)
                             .then(function (results) {
                             callback(results.data[0].result.map(function (datum) { return datum[dimension]; }));
                         });
                     };
-                    //this.$on('typeahead-updated', function() {
-                    //  $timeout(this.targetBlur);
-                    //});
+                    return _this;
                 }
                 DruidQueryCtrl.prototype.cachedAndCoalesced = function (ioFn, $scope, cacheName) {
                     var promiseName = cacheName + "Promise";
                     if (!$scope[cacheName]) {
-                        console.log(cacheName + ": no cached value to use");
                         if (!$scope[promiseName]) {
-                            console.log(cacheName + ": making async call");
                             $scope[promiseName] = ioFn()
                                 .then(function (result) {
                                 $scope[promiseName] = null;
@@ -140,14 +143,10 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                                 return $scope[cacheName];
                             });
                         }
-                        else {
-                            console.log(cacheName + ": async call already in progress...returning same promise");
-                        }
                         return $scope[promiseName];
                     }
                     else {
-                        console.log(cacheName + ": using cached value");
-                        var deferred; // = $q.defer();
+                        var deferred = void 0;
                         deferred.resolve($scope[cacheName]);
                         return deferred.promise;
                     }
@@ -158,7 +157,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                 };
                 DruidQueryCtrl.prototype.addFilter = function () {
                     if (!this.addFilterMode) {
-                        //Enabling this mode will display the filter inputs
                         this.addFilterMode = true;
                         return;
                     }
@@ -167,7 +165,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     }
                     this.target.errors = this.validateTarget();
                     if (!this.target.errors.currentFilter) {
-                        //Add new filter to the list
                         this.target.filters.push(this.target.currentFilter);
                         this.clearCurrentFilter();
                         this.addFilterMode = false;
@@ -238,7 +235,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     }
                     this.target.errors = this.validateTarget();
                     if (!this.target.errors.currentAggregator) {
-                        //Add new aggregator to the list
                         this.target.aggregators.push(this.target.currentAggregator);
                         this.clearCurrentAggregator();
                         this.addAggregatorMode = false;
@@ -269,7 +265,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     }
                     this.target.errors = this.validateTarget();
                     if (!this.target.errors.currentPostAggregator) {
-                        //Add new post aggregator to the list
                         this.target.postAggregators.push(this.target.currentPostAggregator);
                         this.clearCurrentPostAggregator();
                         this.addPostAggregatorMode = false;
@@ -281,25 +276,25 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     this.targetBlur();
                 };
                 DruidQueryCtrl.prototype.clearCurrentPostAggregator = function () {
-                    this.target.currentPostAggregator = lodash_1["default"].clone(this.defaultPostAggregator);
+                    this.target.currentPostAggregator = lodash_1.default.clone(this.defaultPostAggregator);
                     ;
                     this.addPostAggregatorMode = false;
                     this.targetBlur();
                 };
                 DruidQueryCtrl.prototype.isValidFilterType = function (type) {
-                    return lodash_1["default"].has(this.filterValidators, type);
+                    return lodash_1.default.has(this.filterValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidAggregatorType = function (type) {
-                    return lodash_1["default"].has(this.aggregatorValidators, type);
+                    return lodash_1.default.has(this.aggregatorValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidPostAggregatorType = function (type) {
-                    return lodash_1["default"].has(this.postAggregatorValidators, type);
+                    return lodash_1.default.has(this.postAggregatorValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidQueryType = function (type) {
-                    return lodash_1["default"].has(this.queryTypeValidators, type);
+                    return lodash_1.default.has(this.queryTypeValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidArithmeticPostAggregatorFn = function (fn) {
-                    return lodash_1["default"].includes(this.arithmeticPostAggregator, fn);
+                    return lodash_1.default.includes(this.arithmeticPostAggregator, fn);
                 };
                 DruidQueryCtrl.prototype.validateMaxDataPoints = function (target, errs) {
                     if (target.maxDataPoints) {
@@ -353,7 +348,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                         errs.druidMetric = "Must specify a metric";
                         return false;
                     }
-                    console.log(this, this.validateLimit);
                     if (!this.validateLimit(target, errs)) {
                         return false;
                     }
@@ -371,7 +365,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                         return "Must provide dimension name for selector filter.";
                     }
                     if (!target.currentFilter.value) {
-                        // TODO Empty string is how you match null or empty in Druid
                         return "Must provide dimension value for selector filter.";
                     }
                     return null;
@@ -413,7 +406,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     if (!target.currentAggregator.fieldName) {
                         return "Must provide a metric name for " + type + " aggregator.";
                     }
-                    //TODO - check that fieldName is a valid metric (exists and of correct type)
                     return null;
                 };
                 DruidQueryCtrl.prototype.validateApproxHistogramFoldAggregator = function (target) {
@@ -421,8 +413,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     if (err) {
                         return err;
                     }
-                    //TODO - check that resolution and numBuckets are ints (if given)
-                    //TODO - check that lowerLimit and upperLimit are flots (if given)
                     return null;
                 };
                 DruidQueryCtrl.prototype.validateThetaSketchAggregator = function (target) {
@@ -439,7 +429,6 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     if (!target.currentPostAggregator.fieldName) {
                         return "Must provide an aggregator name for " + type + " post aggregator.";
                     }
-                    //TODO - check that fieldName is a valid aggregation (exists and of correct type)
                     return null;
                 };
                 DruidQueryCtrl.prototype.validateMaxPostAggregator = function (target) {
@@ -508,7 +497,7 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     }
                     if (this.target.shouldOverrideGranularity) {
                         if (this.target.customGranularity) {
-                            if (!lodash_1["default"].includes(this.customGranularity, this.target.customGranularity)) {
+                            if (!lodash_1.default.includes(this.customGranularity, this.target.customGranularity)) {
                                 errs.customGranularity = "Invalid granularity.";
                             }
                         }
@@ -541,7 +530,7 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                             }
                         }
                     }
-                    if (lodash_1["default"].isEmpty(this.target.aggregators) && !lodash_1["default"].isEqual(this.target.queryType, "select")) {
+                    if (lodash_1.default.isEmpty(this.target.aggregators) && !lodash_1.default.isEqual(this.target.queryType, "select")) {
                         errs.aggregators = "You must supply at least one aggregator";
                     }
                     if (this.addPostAggregatorMode) {
@@ -559,9 +548,9 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                 };
                 DruidQueryCtrl.templateUrl = 'partials/query.editor.html';
                 return DruidQueryCtrl;
-            })(sdk_1.QueryCtrl);
+            }(sdk_1.QueryCtrl));
             exports_1("DruidQueryCtrl", DruidQueryCtrl);
         }
-    }
+    };
 });
 //# sourceMappingURL=query_ctrl.js.map

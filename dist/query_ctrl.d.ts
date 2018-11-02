@@ -1,5 +1,6 @@
-/// <reference path="../headers/common.d.ts" />
-import { QueryCtrl } from './sdk/sdk';
+/// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
+import { QueryCtrl } from 'app/plugins/sdk';
+import './css/query_editor.css!';
 export declare class DruidQueryCtrl extends QueryCtrl {
     static templateUrl: string;
     errors: any;
@@ -66,7 +67,6 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     defaultSelectDimension: string;
     defaultSelectMetric: string;
     defaultLimit: number;
-    /** @ngInject **/
     constructor($scope: any, $injector: any, $q: any);
     cachedAndCoalesced(ioFn: any, $scope: any, cacheName: any): any;
     targetBlur(): void;
@@ -98,9 +98,9 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     validateGroupByQuery(target: any, errs: any): boolean;
     validateTopNQuery(target: any, errs: any): boolean;
     validateSelectQuery(target: any, errs: any): boolean;
-    validateSelectorFilter(target: any): string;
-    validateJavascriptFilter(target: any): string;
-    validateRegexFilter(target: any): string;
+    validateSelectorFilter(target: any): "Must provide dimension name for selector filter." | "Must provide dimension value for selector filter.";
+    validateJavascriptFilter(target: any): "Must provide dimension name for javascript filter." | "Must provide func value for javascript filter.";
+    validateRegexFilter(target: any): "Must provide dimension name for regex filter." | "Must provide pattern for regex filter.";
     validateCountAggregator(target: any): string;
     validateCardinalityAggregator(type: any, target: any): string;
     validateSimpleAggregator(type: any, target: any): string;
@@ -110,6 +110,6 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     validateMaxPostAggregator(target: any): string;
     validateMinPostAggregator(target: any): string;
     validateQuantilePostAggregator(target: any): string;
-    validateArithmeticPostAggregator(target: any): string;
+    validateArithmeticPostAggregator(target: any): "Must provide an output name for arithmetic post aggregator." | "Must provide a function for arithmetic post aggregator." | "Invalid arithmetic function" | "Must provide a list of fields for arithmetic post aggregator." | "Must provide at least two fields for arithmetic post aggregator.";
     validateTarget(): any;
 }
