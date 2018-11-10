@@ -6,6 +6,7 @@ import * as dateMath from 'app/core/utils/datemath';
 import * as Druid from 'druid.d'
 
 const DRUID_DATASOURCE_PATH = '/druid/v2/datasources';
+const WOW_SUFFIX = ' -1w';
 
 export default class DruidDatasource {
   id: number;
@@ -73,6 +74,7 @@ export default class DruidDatasource {
           granularity = { "type": "period", "period": "P1D", "timeZone": this.periodGranularity }
         }
       }
+
       return this.doQuery(roundedFrom, to, granularity, target);
     });
 
@@ -89,7 +91,7 @@ export default class DruidDatasource {
     let groupBy = _.map(target.groupBy, (e) => { return this.templateSrv.replace(e) });
     let limitSpec = null;
     let metricNames = this.getMetricNames(aggregators, postAggregators);
-    let intervals = this.getQueryIntervals(from, to);
+    let intervals = this.getQueryIntervals(from, to, target.wow);
     let promise = null;
 
     let selectMetrics = target.selectMetrics;
@@ -112,7 +114,7 @@ export default class DruidDatasource {
       limitSpec = this.getLimitSpec(target.limit, target.orderBy);
       promise = this.groupByQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, groupBy, limitSpec)
         .then(response => {
-          return this.convertGroupByData(response.data, groupBy, metricNames);
+          return this.convertGroupByData(response.data, groupBy, metricNames, target.wow, from, to);
         });
     }
     else if (target.queryType === 'select') {
@@ -124,7 +126,7 @@ export default class DruidDatasource {
     else {
       promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
         .then(response => {
-          return this.convertTimeSeriesData(response.data, metricNames);
+          return this.convertTimeSeriesData(response.data, metricNames, target.wow, from, to);
         });
     }
     /*
@@ -162,8 +164,8 @@ export default class DruidDatasource {
   }
 
   selectQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-              dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>,
-              selectThreshold: Object) {
+    dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>,
+    selectThreshold: Object) {
     let query: Druid.DruidSelectQuery = {
       "queryType": "select",
       "dataSource": datasource,
@@ -182,7 +184,7 @@ export default class DruidDatasource {
   };
 
   timeSeriesQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-                  filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object) {
+    filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object) {
     let query: Druid.DruidTimeSeriesQuery = {
       queryType: "timeseries",
       dataSource: datasource,
@@ -200,8 +202,8 @@ export default class DruidDatasource {
   };
 
   topNQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-            filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object,
-            threshold: number, metric: string | Object, dimension: string | Object) {
+    filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object,
+    threshold: number, metric: string | Object, dimension: string | Object) {
     const query: Druid.DruidTopNQuery = {
       queryType: "topN",
       dataSource: datasource,
@@ -222,8 +224,8 @@ export default class DruidDatasource {
   };
 
   groupByQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-               filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>,
-               limitSpec: Druid.LimitSpec) {
+    filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>,
+    limitSpec: Druid.LimitSpec) {
     const query: Druid.DruidGroupByQuery = {
       queryType: "groupBy",
       dataSource: datasource,
@@ -289,7 +291,7 @@ export default class DruidDatasource {
       "dimension": target.currentFilter.dimension,
       "metric": "count",
       "aggregations": [{ "type": "count", "name": "count" }],
-      "intervals": this.getQueryIntervals(panelRange.from, panelRange.to)
+      "intervals": this.getQueryIntervals(panelRange.from, panelRange.to, target.wow)
     };
 
     let filters = [];
@@ -342,8 +344,12 @@ export default class DruidDatasource {
     return null;
   }
 
-  getQueryIntervals(from, to) {
-    return [from.toISOString() + '/' + to.toISOString()];
+  getQueryIntervals(from, to, wow) {
+    let intervals = [from.toISOString() + '/' + to.toISOString()];
+    if (wow) {
+      intervals.push(from.clone().subtract(7, 'days').toISOString() + '/' + to.clone().subtract(7, 'days').toISOString());
+    }
+    return intervals;
   }
 
   getMetricNames(aggregators, postAggregators) {
@@ -357,18 +363,42 @@ export default class DruidDatasource {
     return moment(ts).format('X') * 1000;
   }
 
-  convertTimeSeriesData(md, metrics) {
-    return metrics.map(metric => {
-      return {
-        target: metric,
-        datapoints: md.map(item => {
-          return [
+  convertTimeSeriesData(md, metrics, wow, from, to) {
+    if (!wow) {
+      return metrics.map(metric => {
+        return {
+          target: metric,
+          datapoints: md.map(item => [
             item.result[metric],
             this.formatTimestamp(item.timestamp)
-          ];
+          ])
+        };
+      });
+    } else {
+      let timeseries = [];
+      metrics.forEach(metric => {
+        timeseries.push({
+          target: metric,
+          datapoints: md
+            .filter(item => moment(item.timestamp).isBetween(from, to, null, '[]'))
+            .map(item => [
+              item.result[metric],
+              this.formatTimestamp(item.timestamp)
+            ])
+        });
+        timeseries.push({
+          target: `${metric}${WOW_SUFFIX}`,
+          datapoints: md
+            .filter(item => !moment(item.timestamp).isBetween(from, to, null, '[]'))
+            .map(item => [
+              item.result[metric],
+              this.formatTimestamp(moment(item.timestamp).add(7, 'days'))
+            ])
         })
-      };
-    });
+      });
+      return timeseries;
+    }
+
   }
 
   getGroupName(groupBy, metric) {
@@ -481,54 +511,43 @@ export default class DruidDatasource {
     });
   }
 
-  convertGroupByData(md, groupBy, metrics) {
-    const mergedData = md.map(item => {
-      /*
-        The first map() transforms the list Druid events into a list of objects
-        with keys of the form "<groupName>:<metric>" and values
-        of the form [metricValue, unixTime]
-      */
+  convertGroupByData(md, groupBy, metrics, wow, from, to) {
+    let timeseriesMap = {};
+    md.forEach(item => {
       const groupName = this.getGroupName(groupBy, item);
-      const keys = metrics.map(metric => {
-        return groupName + ":" + metric;
-      });
-      const vals = metrics.map(metric => {
-        return [
-          item.event[metric],
-          this.formatTimestamp(item.timestamp)
-        ];
-      });
-      return _.zipObject(keys, vals);
-    })
-      .reduce((prev, curr) => {
-        /*
-          Reduce() collapses all of the mapped objects into a single
-          object.  The keys are still of the form "<groupName>:<metric>"
-          and the values are arrays of all the values for the same key.
-          The _.assign() function merges objects together and it's callback
-          gets invoked for every key,value pair in the source (2nd argument).
-          Since our initial value for reduce() is an empty object,
-          the _.assign() callback will get called for every new val
-          that we add to the final object.
-        */
-        return _.assignWith(prev, curr, (pVal, cVal) => {
-          if (pVal) {
-            pVal.push(cVal);
-            return pVal;
-          }
-          return [cVal];
+      metrics.forEach(metric => {
+        const keys = metrics.map(metric => {
+          return groupName + ":" + metric;
         });
-      }, {});
-
-    return _.map(mergedData, (vals, key) => {
-      /*
-        Second map converts the aggregated object into an array
-      */
-      return {
-        target: key,
-        datapoints: vals
-      };
+        keys.forEach(key => {
+          if (wow && !moment(item.timestamp).isBetween(from, to, null, '[]')) {
+            if (!timeseriesMap[`${key}${WOW_SUFFIX}`]) {
+              timeseriesMap[`${key}${WOW_SUFFIX}`] = {
+                target: `${key}${WOW_SUFFIX}`,
+                datapoints: []
+              }
+            }
+            timeseriesMap[`${key}${WOW_SUFFIX}`].datapoints.push([
+              item.event[metric],
+              this.formatTimestamp(moment(item.timestamp).clone().add(7, 'days'))
+            ])
+          } else {
+              if (!timeseriesMap[key]) {
+                timeseriesMap[key] = {
+                  target: key,
+                  datapoints: []
+                }
+              }
+              timeseriesMap[key].datapoints.push([
+                item.event[metric],
+                this.formatTimestamp(item.timestamp)
+              ])
+          }
+        });
+      });
     });
+    
+    return Object.keys(timeseriesMap).sort().map(key => timeseriesMap[key]);
   }
 
   convertSelectData(data) {
