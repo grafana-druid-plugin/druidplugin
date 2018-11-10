@@ -614,4 +614,8 @@ export class DruidQueryCtrl extends QueryCtrl {
 
     return errs;
   }
+
+  isWowApplicable() {
+    return ['groupBy', 'timeseries'].indexOf(this.target.queryType) >= 0;
+  }
 }

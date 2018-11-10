@@ -112,4 +112,5 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     validateQuantilePostAggregator(target: any): string;
     validateArithmeticPostAggregator(target: any): "Must provide an output name for arithmetic post aggregator." | "Must provide a function for arithmetic post aggregator." | "Invalid arithmetic function" | "Must provide a list of fields for arithmetic post aggregator." | "Must provide at least two fields for arithmetic post aggregator.";
     validateTarget(): any;
+    isWowApplicable(): boolean;
 }

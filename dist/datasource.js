@@ -1,6 +1,6 @@
 System.register(["lodash", "moment", "app/core/utils/datemath"], function (exports_1, context_1) {
     "use strict";
-    var lodash_1, moment_1, dateMath, DRUID_DATASOURCE_PATH, DruidDatasource;
+    var lodash_1, moment_1, dateMath, DRUID_DATASOURCE_PATH, WOW_SUFFIX, DruidDatasource;
     var __moduleName = context_1 && context_1.id;
     return {
         setters: [
@@ -16,6 +16,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
         ],
         execute: function () {
             DRUID_DATASOURCE_PATH = '/druid/v2/datasources';
+            WOW_SUFFIX = ' -1w';
             DruidDatasource = (function () {
                 function DruidDatasource(instanceSettings, $q, backendSrv, templateSrv) {
                     this.GRANULARITIES = [
@@ -82,7 +83,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                     var groupBy = lodash_1.default.map(target.groupBy, function (e) { return _this.templateSrv.replace(e); });
                     var limitSpec = null;
                     var metricNames = this.getMetricNames(aggregators, postAggregators);
-                    var intervals = this.getQueryIntervals(from, to);
+                    var intervals = this.getQueryIntervals(from, to, target.wow);
                     var promise = null;
                     var selectMetrics = target.selectMetrics;
                     var selectDimensions = target.selectDimensions;
@@ -103,7 +104,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         limitSpec = this.getLimitSpec(target.limit, target.orderBy);
                         promise = this.groupByQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, groupBy, limitSpec)
                             .then(function (response) {
-                            return _this.convertGroupByData(response.data, groupBy, metricNames);
+                            return _this.convertGroupByData(response.data, groupBy, metricNames, target.wow, from, to);
                         });
                     }
                     else if (target.queryType === 'select') {
@@ -115,7 +116,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                     else {
                         promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
                             .then(function (response) {
-                            return _this.convertTimeSeriesData(response.data, metricNames);
+                            return _this.convertTimeSeriesData(response.data, metricNames, target.wow, from, to);
                         });
                     }
                     return promise.then(function (metrics) {
@@ -245,7 +246,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         "dimension": target.currentFilter.dimension,
                         "metric": "count",
                         "aggregations": [{ "type": "count", "name": "count" }],
-                        "intervals": this.getQueryIntervals(panelRange.from, panelRange.to)
+                        "intervals": this.getQueryIntervals(panelRange.from, panelRange.to, target.wow)
                     };
                     var filters = [];
                     if (target.filters) {
@@ -295,8 +296,12 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                     }
                     return null;
                 };
-                DruidDatasource.prototype.getQueryIntervals = function (from, to) {
-                    return [from.toISOString() + '/' + to.toISOString()];
+                DruidDatasource.prototype.getQueryIntervals = function (from, to, wow) {
+                    var intervals = [from.toISOString() + '/' + to.toISOString()];
+                    if (wow) {
+                        intervals.push(from.clone().subtract(7, 'days').toISOString() + '/' + to.clone().subtract(7, 'days').toISOString());
+                    }
+                    return intervals;
                 };
                 DruidDatasource.prototype.getMetricNames = function (aggregators, postAggregators) {
                     var displayAggs = lodash_1.default.filter(aggregators, function (agg) {
@@ -307,19 +312,43 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 DruidDatasource.prototype.formatTimestamp = function (ts) {
                     return moment_1.default(ts).format('X') * 1000;
                 };
-                DruidDatasource.prototype.convertTimeSeriesData = function (md, metrics) {
+                DruidDatasource.prototype.convertTimeSeriesData = function (md, metrics, wow, from, to) {
                     var _this = this;
-                    return metrics.map(function (metric) {
-                        return {
-                            target: metric,
-                            datapoints: md.map(function (item) {
-                                return [
+                    if (!wow) {
+                        return metrics.map(function (metric) {
+                            return {
+                                target: metric,
+                                datapoints: md.map(function (item) { return [
                                     item.result[metric],
                                     _this.formatTimestamp(item.timestamp)
-                                ];
-                            })
-                        };
-                    });
+                                ]; })
+                            };
+                        });
+                    }
+                    else {
+                        var timeseries_1 = [];
+                        metrics.forEach(function (metric) {
+                            timeseries_1.push({
+                                target: metric,
+                                datapoints: md
+                                    .filter(function (item) { return moment_1.default(item.timestamp).isBetween(from, to, null, '[]'); })
+                                    .map(function (item) { return [
+                                    item.result[metric],
+                                    _this.formatTimestamp(item.timestamp)
+                                ]; })
+                            });
+                            timeseries_1.push({
+                                target: "" + metric + WOW_SUFFIX,
+                                datapoints: md
+                                    .filter(function (item) { return !moment_1.default(item.timestamp).isBetween(from, to, null, '[]'); })
+                                    .map(function (item) { return [
+                                    item.result[metric],
+                                    _this.formatTimestamp(moment_1.default(item.timestamp).add(7, 'days'))
+                                ]; })
+                            });
+                        });
+                        return timeseries_1;
+                    }
                 };
                 DruidDatasource.prototype.getGroupName = function (groupBy, metric) {
                     return groupBy.map(function (dim) {
@@ -366,36 +395,44 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         };
                     });
                 };
-                DruidDatasource.prototype.convertGroupByData = function (md, groupBy, metrics) {
+                DruidDatasource.prototype.convertGroupByData = function (md, groupBy, metrics, wow, from, to) {
                     var _this = this;
-                    var mergedData = md.map(function (item) {
+                    var timeseriesMap = {};
+                    md.forEach(function (item) {
                         var groupName = _this.getGroupName(groupBy, item);
-                        var keys = metrics.map(function (metric) {
-                            return groupName + ":" + metric;
+                        metrics.forEach(function (metric) {
+                            var keys = metrics.map(function (metric) {
+                                return groupName + ":" + metric;
+                            });
+                            keys.forEach(function (key) {
+                                if (wow && !moment_1.default(item.timestamp).isBetween(from, to, null, '[]')) {
+                                    if (!timeseriesMap["" + key + WOW_SUFFIX]) {
+                                        timeseriesMap["" + key + WOW_SUFFIX] = {
+                                            target: "" + key + WOW_SUFFIX,
+                                            datapoints: []
+                                        };
+                                    }
+                                    timeseriesMap["" + key + WOW_SUFFIX].datapoints.push([
+                                        item.event[metric],
+                                        _this.formatTimestamp(moment_1.default(item.timestamp).clone().add(7, 'days'))
+                                    ]);
+                                }
+                                else {
+                                    if (!timeseriesMap[key]) {
+                                        timeseriesMap[key] = {
+                                            target: key,
+                                            datapoints: []
+                                        };
+                                    }
+                                    timeseriesMap[key].datapoints.push([
+                                        item.event[metric],
+                                        _this.formatTimestamp(item.timestamp)
+                                    ]);
+                                }
+                            });
                         });
-                        var vals = metrics.map(function (metric) {
-                            return [
-                                item.event[metric],
-                                _this.formatTimestamp(item.timestamp)
-                            ];
-                        });
-                        return lodash_1.default.zipObject(keys, vals);
-                    })
-                        .reduce(function (prev, curr) {
-                        return lodash_1.default.assignWith(prev, curr, function (pVal, cVal) {
-                            if (pVal) {
-                                pVal.push(cVal);
-                                return pVal;
-                            }
-                            return [cVal];
-                        });
-                    }, {});
-                    return lodash_1.default.map(mergedData, function (vals, key) {
-                        return {
-                            target: key,
-                            datapoints: vals
-                        };
                     });
+                    return Object.keys(timeseriesMap).sort().map(function (key) { return timeseriesMap[key]; });
                 };
                 DruidDatasource.prototype.convertSelectData = function (data) {
                     var resultList = lodash_1.default.map(data, "result");
