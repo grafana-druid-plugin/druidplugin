@@ -365,19 +365,14 @@ function (angular, _, dateMath, moment) {
         return finalFilter;
       });
       if (replacedFilters) {
-
         if (replacedFilters.length === 1) {
           return replacedFilters[0];
         }
-
-        else {
-            return {
+        return  {
               "type": "and",
               "fields": replacedFilters
             };
           }
-
-        }
       return null;
     }
 

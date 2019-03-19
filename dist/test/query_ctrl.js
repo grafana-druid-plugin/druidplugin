@@ -397,7 +397,6 @@ var DruidQueryCtrl = (function (_super) {
     };
     DruidQueryCtrl.prototype.validateJsonFilter = function (target) {
         if (!target.currentFilter.value) {
-            // TODO Empty string is how you match null or empty in Druid
             return "Must provide dimension value for json filter.";
         }
         else {
