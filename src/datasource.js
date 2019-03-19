@@ -359,23 +359,18 @@ function (angular, _, dateMath, moment) {
         if (filter.negate) {
           return { "type": "not", "field": finalFilter };
         }
+        if (filter.type === "json") {
+          finalFilter = JSON.parse(filter.value);
+        }
         return finalFilter;
       });
       if (replacedFilters) {
 
         if (replacedFilters.length === 1) {
-          if (replacedFilters[0].type === "json") {
-            replacedFilters[0] = JSON.parse(replacedFilters[0].value);
-          }
           return replacedFilters[0];
         }
 
         else {
-            for (var i = 0; i < replacedFilters.length; i++) {
-              if (replacedFilters[i].type === "json") {
-                replacedFilters[i] = JSON.parse(replacedFilters[i].value);
-              }
-            }
             return {
               "type": "and",
               "fields": replacedFilters

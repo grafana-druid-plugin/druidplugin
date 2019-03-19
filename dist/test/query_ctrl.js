@@ -400,6 +400,14 @@ var DruidQueryCtrl = (function (_super) {
             // TODO Empty string is how you match null or empty in Druid
             return "Must provide dimension value for json filter.";
         }
+        else {
+            try {
+                JSON.parse(target.currentFilter.value);
+            }
+            catch (e) {
+                throw "Must provide valid json filter";
+            }
+        }
         return null;
     };
     DruidQueryCtrl.prototype.validateCountAggregator = function (target) {
