@@ -476,7 +476,8 @@ export class DruidQueryCtrl extends QueryCtrl {
         if (!target.currentFilter.value) {
             return "Must provide dimension value for json filter.";
         }
-        else {
+
+        if(!target.currentFilter.value.toString().includes('$')){
             try {
                 JSON.parse(target.currentFilter.value);
             } catch (e) {
