@@ -32,7 +32,8 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                         "selector": this.validateSelectorFilter.bind(this),
                         "regex": this.validateRegexFilter.bind(this),
                         "javascript": this.validateJavascriptFilter.bind(this),
-                        "in": this.validateInFilter.bind(this)
+                        "in": this.validateInFilter.bind(this),
+                        "json": this.validateJsonFilter.bind(this)
                     };
                     this.aggregatorValidators = {
                         "count": this.validateCountAggregator,
@@ -401,6 +402,20 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                     }
                     if (!target.currentFilter.values) {
                         return "Must provide values for in filter";
+                    }
+                    return null;
+                };
+                DruidQueryCtrl.prototype.validateJsonFilter = function (target) {
+                    if (!target.currentFilter.value) {
+                        return "Must provide dimension value for json filter.";
+                    }
+                    if (!target.currentFilter.value.toString().includes('$')) {
+                        try {
+                            JSON.parse(target.currentFilter.value);
+                        }
+                        catch (e) {
+                            throw "Must provide valid json filter";
+                        }
                     }
                     return null;
                 };

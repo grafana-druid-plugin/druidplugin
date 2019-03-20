@@ -65,7 +65,8 @@ function (angular, _, dateMath, moment) {
       "regex": _.partialRight(replaceTemplateValues, ['pattern']),
       "javascript": _.partialRight(replaceTemplateValues, ['function']),
       "search": _.partialRight(replaceTemplateValues, []),
-      "in": _.partialRight(replaceTemplateValues, ['values'])
+      "in": _.partialRight(replaceTemplateValues, ['values']),
+      "json": _.partialRight(replaceTemplateValues, ['value'])
     };
 
     this.testDatasource = function() {
@@ -358,6 +359,9 @@ function (angular, _, dateMath, moment) {
         if (filter.negate) {
           return { "type": "not", "field": finalFilter };
         }
+        if (filter.type === "json") {
+          finalFilter = JSON.parse(filter.value);
+        }
         return finalFilter;
       });
       if (replacedFilters) {
@@ -365,10 +369,10 @@ function (angular, _, dateMath, moment) {
           return replacedFilters[0];
         }
         return  {
-          "type": "and",
-          "fields": replacedFilters
-        };
-      }
+              "type": "and",
+              "fields": replacedFilters
+            };
+          }
       return null;
     }
 
