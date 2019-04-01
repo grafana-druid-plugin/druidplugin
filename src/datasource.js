@@ -345,15 +345,6 @@ function (angular, _, dateMath, moment) {
       var replacedFilters = filters.map(function (filter) {
         return filterTemplateExpanders[filter.type](filter, scopedVars);
       })
-      .filter(function(filter) {
-        if(filter.pattern)
-            return filter.pattern!="_REMOVE_FILTER_"
-        else if(filter.value)
-            return filter.value!="_REMOVE_FILTER_"
-        else
-            return true
-            }
-        )
       .map(function (filter) {
         var finalFilter = _.omit(filter, 'negate');
         if (filter.negate) {
@@ -364,16 +355,42 @@ function (angular, _, dateMath, moment) {
         }
         return finalFilter;
       });
+
       if (replacedFilters) {
+        replacedFilters = remove_filter_recursively(replacedFilters)
+      }
+
+      if (replacedFilters.length>0) {
         if (replacedFilters.length === 1) {
           return replacedFilters[0];
         }
         return  {
-              "type": "and",
-              "fields": replacedFilters
-            };
-          }
+          "type": "and",
+          "fields": replacedFilters
+        };
+      }
+
       return null;
+    }
+
+    function remove_filter_recursively(filters){
+
+      return filters.map(function(filter){
+        if(filter.fields) {
+          filter.fields=remove_filter_recursively(filter.fields)
+        }
+        return filter
+      }).filter(function(filter){
+        if (filter.pattern)
+          return filter.pattern != "_REMOVE_FILTER_"
+        else if (filter.value)
+          return filter.value != "_REMOVE_FILTER_"
+        else if (filter.values)
+          return !filter.values.includes("_REMOVE_FILTER_")
+        else
+          return true
+      });
+
     }
 
     function getQueryIntervals(from, to) {
