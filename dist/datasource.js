@@ -37,7 +37,7 @@ function (angular, _, dateMath, moment) {
         var substitutedVals = _.chain(attrList)
           .map(attr => { return templateSrv.replace(obj[attr]).replace(/[{}]/g, "") })
           .map(val => { return val.split(',') })
-          .value().flatten();
+          .flatten().value();
         substitutedVals = [substitutedVals];
       } else {
         var substitutedVals = attrList.map(function (attr) {
