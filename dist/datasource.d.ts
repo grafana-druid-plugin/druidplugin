@@ -1,4 +1,3 @@
-/// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import * as Druid from 'druid.d';
 export default class DruidDatasource {
     id: number;
