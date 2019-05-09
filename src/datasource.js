@@ -175,13 +175,20 @@ function (angular, _, dateMath, moment) {
     this._doQuery = function (from, to, granularity, target, scopedVars) {
 
       function splitCardinalityFields(aggregator) {
+
         if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
           aggregator.fieldNames = aggregator.fieldNames.split(',')
         }
+
+        //adds json type aggregator
         if(aggregator.type === 'json'){
+          if(aggregator.value.includes('$')){
+            aggregator=aggregationTemplateExpanders[aggregator.type](aggregator, scopedVars);
+          }
             aggregator= splitCardinalityFields(JSON.parse(aggregator.value))
         }
 
+        //adds suuport for aggregation template variable
         if(aggregator.type!='count' && aggregator.fieldName.includes('$')){
             aggregator=aggregationTemplateExpanders[aggregator.type](aggregator, scopedVars);
         }
