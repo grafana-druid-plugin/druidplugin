@@ -176,21 +176,18 @@ function (angular, _, dateMath, moment) {
 
       function splitCardinalityFields(aggregator) {
 
-        if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
-          aggregator.fieldNames = aggregator.fieldNames.split(',')
+        if(aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
+           aggregator.fieldNames = aggregator.fieldNames.split(',')
+        }
+
+        //adds support for aggregation template variable
+        if(aggregator.type!='count' ){
+           aggregator=aggregationTemplateExpanders[aggregator.type](aggregator, scopedVars);
         }
 
         //adds json type aggregator
         if(aggregator.type === 'json'){
-          if(aggregator.value.includes('$')){
-            aggregator=aggregationTemplateExpanders[aggregator.type](aggregator, scopedVars);
-          }
-            aggregator= splitCardinalityFields(JSON.parse(aggregator.value))
-        }
-
-        //adds suuport for aggregation template variable
-        if(aggregator.type!='count' && aggregator.fieldName.includes('$')){
-            aggregator=aggregationTemplateExpanders[aggregator.type](aggregator, scopedVars);
+           aggregator= splitCardinalityFields(JSON.parse(aggregator.value))
         }
 
         return aggregator;
