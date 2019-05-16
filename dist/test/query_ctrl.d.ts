@@ -42,6 +42,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
         "doubleSum": any;
         "approxHistogramFold": any;
         "hyperUnique": any;
+        "json": (target: any) => string;
         "thetaSketch": any;
     };
     postAggregatorValidators: {
@@ -106,6 +107,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     validateInFilter(target: any): string;
     validateJsonFilter(target: any): string;
     validateCountAggregator(target: any): string;
+    validateJsonAggregator(target: any): string;
     validateCardinalityAggregator(type: any, target: any): string;
     validateSimpleAggregator(type: any, target: any): string;
     validateApproxHistogramFoldAggregator(target: any): string;

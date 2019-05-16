@@ -69,6 +69,17 @@ function (angular, _, dateMath, moment) {
       "json": _.partialRight(replaceTemplateValues, ['value'])
     };
 
+    var aggregationTemplateExpanders = {
+      "count": _.partialRight(replaceTemplateValues, ['name']),
+      "cardinality": _.partialRight(replaceTemplateValues, ['fieldNames']),
+      "longSum": _.partialRight(replaceTemplateValues, ['fieldName']),
+      "doubleSum": _.partialRight(replaceTemplateValues, ['fieldName']),
+      "approxHistogramFold": _.partialRight(replaceTemplateValues, ['fieldName']),
+      "hyperUnique": _.partialRight(replaceTemplateValues, ['fieldName']),
+      "json": _.partialRight(replaceTemplateValues, ['value']),
+      "thetaSketch": _.partialRight(replaceTemplateValues, ['fieldName'])
+    };
+
     this.testDatasource = function() {
       return this._get('/druid/v2/datasources').then(function () {
         return { status: "success", message: "Druid Data source is working", title: "Success" };
@@ -164,9 +175,21 @@ function (angular, _, dateMath, moment) {
     this._doQuery = function (from, to, granularity, target, scopedVars) {
 
       function splitCardinalityFields(aggregator) {
-        if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
-          aggregator.fieldNames = aggregator.fieldNames.split(',')
+
+        if(aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
+           aggregator.fieldNames = aggregator.fieldNames.split(',')
         }
+
+        //adds support for aggregation template variable
+        if(aggregator.type!='count' ){
+           aggregator=aggregationTemplateExpanders[aggregator.type](aggregator, scopedVars);
+        }
+
+        //adds json type aggregator
+        if(aggregator.type === 'json'){
+           aggregator= splitCardinalityFields(JSON.parse(aggregator.value))
+        }
+
         return aggregator;
       }
 

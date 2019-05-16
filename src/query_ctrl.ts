@@ -47,6 +47,7 @@ export class DruidQueryCtrl extends QueryCtrl {
       "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
       "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
       "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
+      "json": this.validateJsonAggregator,
       "thetaSketch": this.validateThetaSketchAggregator.bind(this)
     };
     postAggregatorValidators = {
@@ -490,6 +491,20 @@ export class DruidQueryCtrl extends QueryCtrl {
     validateCountAggregator(target) {
       if (!target.currentAggregator.name) {
         return "Must provide an output name for count aggregator.";
+      }
+      return null;
+    }
+
+    validateJsonAggregator(target) {
+      if (!target.currentAggregator.value) {
+        return "Must provide an value for json aggregator.";
+      }
+      if(!target.currentAggregator.value.toString().includes('$')){
+        try {
+            JSON.parse(target.currentAggregator.value);
+        } catch (e) {
+            throw "Must provide valid json aggregator";
+        }
       }
       return null;
     }

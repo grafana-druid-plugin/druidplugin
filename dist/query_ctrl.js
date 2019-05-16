@@ -42,6 +42,7 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                         "doubleSum": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
                         "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
                         "hyperUnique": lodash_1["default"].partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
+                        "json": this.validateJsonAggregator,
                         "thetaSketch": this.validateThetaSketchAggregator.bind(this)
                     };
                     this.postAggregatorValidators = {
@@ -422,6 +423,20 @@ System.register(['lodash', './sdk/sdk'], function(exports_1) {
                 DruidQueryCtrl.prototype.validateCountAggregator = function (target) {
                     if (!target.currentAggregator.name) {
                         return "Must provide an output name for count aggregator.";
+                    }
+                    return null;
+                };
+                DruidQueryCtrl.prototype.validateJsonAggregator = function (target) {
+                    if (!target.currentAggregator.value) {
+                        return "Must provide an value for json aggregator.";
+                    }
+                    if (!target.currentAggregator.value.toString().includes('$')) {
+                        try {
+                            JSON.parse(target.currentAggregator.value);
+                        }
+                        catch (e) {
+                            throw "Must provide valid json aggregator";
+                        }
                     }
                     return null;
                 };
