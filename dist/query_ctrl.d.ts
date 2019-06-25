@@ -85,6 +85,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     removeAggregator(index: any): void;
     clearCurrentAggregator(): void;
     addPostAggregator(): void;
+    editPostAggregator(index: any): void;
     removePostAggregator(index: any): void;
     clearCurrentPostAggregator(): void;
     isValidFilterType(type: any): any;

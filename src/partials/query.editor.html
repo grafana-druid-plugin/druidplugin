@@ -416,6 +416,9 @@
       <div ng-switch-when="arithmetic">
         <label class="gf-form-label">
           {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;fn&nbsp;=&nbsp;{{postAggregator.fn}}, &nbsp;fields&nbsp;=&nbsp;{{postAggregator.fields}}
+          <a ng-click="ctrl.editPostAggregator($index)">
+            <i class="fa fa-pencil"></i>
+          </a>
           <a ng-click="ctrl.removePostAggregator($index)">
             <i class="fa fa-remove"></i>
           </a>
@@ -424,6 +427,9 @@
       <div ng-switch-when="max">
         <label class="gf-form-label">
           {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;field&nbsp;=&nbsp;{{postAggregator.fieldName}}
+          <a ng-click="ctrl.editPostAggregator($index)">
+            <i class="fa fa-pencil"></i>
+          </a>  
           <a ng-click="ctrl.removePostAggregator($index)">
             <i class="fa fa-remove"></i>
           </a>
@@ -432,6 +438,9 @@
       <div ng-switch-when="min">
         <label class="gf-form-label">
           {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;field&nbsp;=&nbsp;{{postAggregator.fieldName}}
+          <a ng-click="ctrl.editPostAggregator($index)">
+            <i class="fa fa-pencil"></i>
+          </a>  
           <a ng-click="ctrl.removePostAggregator($index)">
             <i class="fa fa-remove"></i>
           </a>
@@ -440,6 +449,9 @@
       <div ng-switch-when="quantile">
         <label class="gf-form-label">
           {{postAggregator.type}}:&nbsp;name&nbsp;=&nbsp;{{postAggregator.name}},&nbsp;field&nbsp;=&nbsp;{{postAggregator.fieldName}}, &nbsp;prob&nbsp;=&nbsp;{{postAggregator.probability}}
+          <a ng-click="ctrl.editPostAggregator($index)">
+            <i class="fa fa-pencil"></i>
+          </a>  
           <a ng-click="ctrl.removePostAggregator($index)">
             <i class="fa fa-remove"></i>
           </a>
