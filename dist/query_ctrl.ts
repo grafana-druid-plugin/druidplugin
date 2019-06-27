@@ -11,6 +11,7 @@ export class DruidQueryCtrl extends QueryCtrl {
   addFilterMode: boolean;
   addAggregatorMode: boolean;
   addPostAggregatorMode: boolean;
+  addPostAggregatorFieldMode: boolean;
   addDimensionsMode: boolean;
   addMetricsMode: boolean;
   listDataSources: any;
@@ -23,6 +24,7 @@ export class DruidQueryCtrl extends QueryCtrl {
   filterTypes: any;
   aggregatorTypes: any;
   postAggregatorTypes: any;
+  postAggregatorFieldTypes: any;
   arithmeticPostAggregator: any;
   customGranularity: any;
   target: any;
@@ -54,12 +56,22 @@ export class DruidQueryCtrl extends QueryCtrl {
     "min": this.validateMinPostAggregator.bind(this),
     "quantile": this.validateQuantilePostAggregator.bind(this)
   };
-
+  postAggregatorFieldValidators = {
+    "fieldAccess": this.validateFieldAccessPostAggregatorField.bind(this),
+    "hyperUniqueCardinality": this.validateHyperUniqueCardinalityPostAggregatorField.bind(this),
+    "constant": this.validateConstantPostAggregatorField.bind(this),
+  }
   arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
+  arithmeticPostAggregatorFieldsTypes = { 
+    'fieldAccess': null, 
+    'constant': null, 
+    'hyperUniqueCardinality': null 
+  };
   defaultQueryType = "timeseries";
   defaultFilterType = "selector";
   defaultAggregatorType = "count";
   defaultPostAggregator = { type: 'arithmetic', 'fn': '+' };
+  defaultPostAggregatorField = { type: 'fieldAccess' };
   customGranularities = ['second', 'minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'week', 'month', 'quarter', 'year', 'all'];
   defaultCustomGranularity = 'minute';
   defaultSelectDimension = "";
@@ -77,7 +89,9 @@ export class DruidQueryCtrl extends QueryCtrl {
     this.filterTypes = _.keys(this.filterValidators);
     this.aggregatorTypes = _.keys(this.aggregatorValidators);
     this.postAggregatorTypes = _.keys(this.postAggregatorValidators);
+    this.postAggregatorFieldTypes = _.keys(this.postAggregatorFieldValidators);
     this.arithmeticPostAggregator = _.keys(this.arithmeticPostAggregatorFns);
+    this.arithmeticPostAggregatorFieldsTypes = _.keys(this.arithmeticPostAggregatorFieldsTypes);
     this.customGranularity = this.customGranularities;
 
     this.errors = this.validateTarget();
@@ -97,6 +111,10 @@ export class DruidQueryCtrl extends QueryCtrl {
 
     if (!this.target.currentPostAggregator) {
       this.clearCurrentPostAggregator();
+    }
+
+    if (!this.target.clearCurrentPostAggregatorField) {
+      this.clearCurrentPostAggregatorField();
     }
 
     if (!this.target.customGranularity) {
@@ -322,7 +340,7 @@ export class DruidQueryCtrl extends QueryCtrl {
   editPostAggregator(index) {
     this.addPostAggregatorMode = true;
     const delPostAggregator = this.target.postAggregators.splice(index, 1);
-    this.target.currentAggregator = delPostAggregator[0];
+    this.target.currentPostAggregator = delPostAggregator[0];
   }
 
   removePostAggregator(index) {
@@ -331,9 +349,52 @@ export class DruidQueryCtrl extends QueryCtrl {
   }
 
   clearCurrentPostAggregator() {
-    this.target.currentPostAggregator = _.clone(this.defaultPostAggregator);;
+    this.target.currentPostAggregator = _.clone(this.defaultPostAggregator);
     this.addPostAggregatorMode = false;
     this.targetBlur();
+  }
+
+  addPostAggregatorField() {
+    if (!this.addPostAggregatorFieldMode) {
+      this.addPostAggregatorFieldMode = true;
+      return;
+    }
+    
+    this.target.errors = this.validateTarget();
+
+    if (!this.target.currentPostAggregator) {
+      this.target.currentPostAggregator = _.clone(this.defaultPostAggregator);
+    }
+
+    if (!this.target.currentPostAggregator.fields) {
+      this.target.currentPostAggregator.fields = [];
+    }
+
+    if (!this.target.errors.currentPostAggregatorField) {
+      //Add new post aggregator field to the list
+      this.target.currentPostAggregator.fields.push(this.target.currentPostAggregatorField);
+      this.clearCurrentPostAggregatorField();
+      this.addPostAggregatorFieldMode = false;
+    }
+
+    this.targetBlur();
+  }
+
+  removePostAggregatorField(index) {
+    this.target.currentPostAggregator.fields.splice(index, 1);
+    this.targetBlur();
+  }
+
+  clearCurrentPostAggregatorField() {
+    this.target.currentPostAggregatorField = _.clone(this.defaultPostAggregatorField);
+    this.addPostAggregatorFieldMode = false;
+    this.targetBlur();
+  }
+
+  editPostAggregatorField(index) {
+    this.addPostAggregatorFieldMode = true;
+    const delPostAggregatorField = this.target.currentPostAggregator.fields.splice(index, 1);
+    this.target.currentPostAggregatorField = delPostAggregatorField[0];
   }
 
   isValidFilterType(type) {
@@ -346,6 +407,10 @@ export class DruidQueryCtrl extends QueryCtrl {
 
   isValidPostAggregatorType(type) {
     return _.has(this.postAggregatorValidators, type);
+  }
+
+  isValidPostAggregatorFieldType(type) {
+    return _.has(this.postAggregatorFieldValidators, type)
   }
 
   isValidQueryType(type) {
@@ -539,20 +604,37 @@ export class DruidQueryCtrl extends QueryCtrl {
     if (!this.isValidArithmeticPostAggregatorFn(target.currentPostAggregator.fn)) {
       return "Invalid arithmetic function";
     }
+
     if (!target.currentPostAggregator.fields) {
       return "Must provide a list of fields for arithmetic post aggregator.";
     } else {
-      if (!Array.isArray(target.currentPostAggregator.fields)) {
-        target.currentPostAggregator.fields = target.currentPostAggregator.fields
-          .split(",")
-          .map(function (f) { return f.trim(); })
-          .map(function (f) { return { type: "fieldAccess", fieldName: f }; });
-      }
       if (target.currentPostAggregator.fields.length < 2) {
         return "Must provide at least two fields for arithmetic post aggregator.";
       }
     }
     return null;
+  }
+
+  validateFieldAccessPostAggregatorField(target) {
+    if (!target.currentPostAggregatorField.fieldName) {
+      return "Must provide a fieldName for fieldAccess field type.";
+    }
+  }
+
+  validateHyperUniqueCardinalityPostAggregatorField(target) {
+    if (!target.currentPostAggregatorField.fieldName) {
+      return "Must provide a fieldName for hyperUniqueCardinality field type.";
+    }
+  }
+
+  validateConstantPostAggregatorField(target) {
+    if (!target.currentPostAggregatorField.value) {
+      return "Must provide a value for constant field type.";
+    }
+
+    if (isNaN(Number(target.currentPostAggregatorField.value))) {
+      return "The value for constant field type must be numeric."
+    }
   }
 
   validateTarget() {
@@ -614,6 +696,17 @@ export class DruidQueryCtrl extends QueryCtrl {
         validatorOut = this.postAggregatorValidators[this.target.currentPostAggregator.type](this.target);
         if (validatorOut) {
           errs.currentPostAggregator = validatorOut;
+        }
+      }
+    }
+
+    if (this.addPostAggregatorFieldMode) {
+      if(!this.isValidPostAggregatorFieldType(this.target.currentPostAggregatorField.type)) {
+        errs.currentPostAggregatorField = "Invalid post aggregator field type: " + this.target.currentPostAggregatorField.type + ".";
+      } else {
+        validatorOut = this.postAggregatorFieldValidators[this.target.currentPostAggregatorField.type](this.target);
+        if (validatorOut) {
+          errs.currentPostAggregatorField = validatorOut;
         }
       }
     }
