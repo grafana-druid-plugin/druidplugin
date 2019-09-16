@@ -7,6 +7,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     addFilterMode: boolean;
     addAggregatorMode: boolean;
     addPostAggregatorMode: boolean;
+    addPostAggregatorFieldMode: boolean;
     addDimensionsMode: boolean;
     addMetricsMode: boolean;
     listDataSources: any;
@@ -19,6 +20,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     filterTypes: any;
     aggregatorTypes: any;
     postAggregatorTypes: any;
+    postAggregatorFieldTypes: any;
     arithmeticPostAggregator: any;
     customGranularity: any;
     target: any;
@@ -49,11 +51,21 @@ export declare class DruidQueryCtrl extends QueryCtrl {
         "min": any;
         "quantile": any;
     };
+    postAggregatorFieldValidators: {
+        "fieldAccess": any;
+        "hyperUniqueCardinality": any;
+        "constant": any;
+    };
     arithmeticPostAggregatorFns: {
         '+': any;
         '-': any;
         '*': any;
         '/': any;
+    };
+    arithmeticPostAggregatorFieldsTypes: {
+        'fieldAccess': any;
+        'constant': any;
+        'hyperUniqueCardinality': any;
     };
     defaultQueryType: string;
     defaultFilterType: string;
@@ -61,6 +73,9 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     defaultPostAggregator: {
         type: string;
         'fn': string;
+    };
+    defaultPostAggregatorField: {
+        type: string;
     };
     customGranularities: string[];
     defaultCustomGranularity: string;
@@ -85,11 +100,17 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     removeAggregator(index: any): void;
     clearCurrentAggregator(): void;
     addPostAggregator(): void;
+    editPostAggregator(index: any): void;
     removePostAggregator(index: any): void;
     clearCurrentPostAggregator(): void;
+    addPostAggregatorField(): void;
+    removePostAggregatorField(index: any): void;
+    clearCurrentPostAggregatorField(): void;
+    editPostAggregatorField(index: any): void;
     isValidFilterType(type: any): any;
     isValidAggregatorType(type: any): any;
     isValidPostAggregatorType(type: any): any;
+    isValidPostAggregatorFieldType(type: any): any;
     isValidQueryType(type: any): any;
     isValidArithmeticPostAggregatorFn(fn: any): any;
     validateMaxDataPoints(target: any, errs: any): boolean;
@@ -111,5 +132,8 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     validateMinPostAggregator(target: any): string;
     validateQuantilePostAggregator(target: any): string;
     validateArithmeticPostAggregator(target: any): "Must provide an output name for arithmetic post aggregator." | "Must provide a function for arithmetic post aggregator." | "Invalid arithmetic function" | "Must provide a list of fields for arithmetic post aggregator." | "Must provide at least two fields for arithmetic post aggregator.";
+    validateFieldAccessPostAggregatorField(target: any): string;
+    validateHyperUniqueCardinalityPostAggregatorField(target: any): string;
+    validateConstantPostAggregatorField(target: any): "Must provide a value for constant field type." | "The value for constant field type must be numeric.";
     validateTarget(): any;
 }

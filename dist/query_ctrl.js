@@ -57,11 +57,22 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                         "min": _this.validateMinPostAggregator.bind(_this),
                         "quantile": _this.validateQuantilePostAggregator.bind(_this)
                     };
+                    _this.postAggregatorFieldValidators = {
+                        "fieldAccess": _this.validateFieldAccessPostAggregatorField.bind(_this),
+                        "hyperUniqueCardinality": _this.validateHyperUniqueCardinalityPostAggregatorField.bind(_this),
+                        "constant": _this.validateConstantPostAggregatorField.bind(_this),
+                    };
                     _this.arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
+                    _this.arithmeticPostAggregatorFieldsTypes = {
+                        'fieldAccess': null,
+                        'constant': null,
+                        'hyperUniqueCardinality': null
+                    };
                     _this.defaultQueryType = "timeseries";
                     _this.defaultFilterType = "selector";
                     _this.defaultAggregatorType = "count";
                     _this.defaultPostAggregator = { type: 'arithmetic', 'fn': '+' };
+                    _this.defaultPostAggregatorField = { type: 'fieldAccess' };
                     _this.customGranularities = ['second', 'minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'week', 'month', 'quarter', 'year', 'all'];
                     _this.defaultCustomGranularity = 'minute';
                     _this.defaultSelectDimension = "";
@@ -74,7 +85,9 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     _this.filterTypes = lodash_1.default.keys(_this.filterValidators);
                     _this.aggregatorTypes = lodash_1.default.keys(_this.aggregatorValidators);
                     _this.postAggregatorTypes = lodash_1.default.keys(_this.postAggregatorValidators);
+                    _this.postAggregatorFieldTypes = lodash_1.default.keys(_this.postAggregatorFieldValidators);
                     _this.arithmeticPostAggregator = lodash_1.default.keys(_this.arithmeticPostAggregatorFns);
+                    _this.arithmeticPostAggregatorFieldsTypes = lodash_1.default.keys(_this.arithmeticPostAggregatorFieldsTypes);
                     _this.customGranularity = _this.customGranularities;
                     _this.errors = _this.validateTarget();
                     if (!_this.target.currentFilter) {
@@ -90,6 +103,9 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     }
                     if (!_this.target.currentPostAggregator) {
                         _this.clearCurrentPostAggregator();
+                    }
+                    if (!_this.target.clearCurrentPostAggregatorField) {
+                        _this.clearCurrentPostAggregatorField();
                     }
                     if (!_this.target.customGranularity) {
                         _this.target.customGranularity = _this.defaultCustomGranularity;
@@ -271,15 +287,52 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     }
                     this.targetBlur();
                 };
+                DruidQueryCtrl.prototype.editPostAggregator = function (index) {
+                    this.addPostAggregatorMode = true;
+                    var delPostAggregator = this.target.postAggregators.splice(index, 1);
+                    this.target.currentPostAggregator = delPostAggregator[0];
+                };
                 DruidQueryCtrl.prototype.removePostAggregator = function (index) {
                     this.target.postAggregators.splice(index, 1);
                     this.targetBlur();
                 };
                 DruidQueryCtrl.prototype.clearCurrentPostAggregator = function () {
                     this.target.currentPostAggregator = lodash_1.default.clone(this.defaultPostAggregator);
-                    ;
                     this.addPostAggregatorMode = false;
                     this.targetBlur();
+                };
+                DruidQueryCtrl.prototype.addPostAggregatorField = function () {
+                    if (!this.addPostAggregatorFieldMode) {
+                        this.addPostAggregatorFieldMode = true;
+                        return;
+                    }
+                    this.target.errors = this.validateTarget();
+                    if (!this.target.currentPostAggregator) {
+                        this.target.currentPostAggregator = lodash_1.default.clone(this.defaultPostAggregator);
+                    }
+                    if (!this.target.currentPostAggregator.fields) {
+                        this.target.currentPostAggregator.fields = [];
+                    }
+                    if (!this.target.errors.currentPostAggregatorField) {
+                        this.target.currentPostAggregator.fields.push(this.target.currentPostAggregatorField);
+                        this.clearCurrentPostAggregatorField();
+                        this.addPostAggregatorFieldMode = false;
+                    }
+                    this.targetBlur();
+                };
+                DruidQueryCtrl.prototype.removePostAggregatorField = function (index) {
+                    this.target.currentPostAggregator.fields.splice(index, 1);
+                    this.targetBlur();
+                };
+                DruidQueryCtrl.prototype.clearCurrentPostAggregatorField = function () {
+                    this.target.currentPostAggregatorField = lodash_1.default.clone(this.defaultPostAggregatorField);
+                    this.addPostAggregatorFieldMode = false;
+                    this.targetBlur();
+                };
+                DruidQueryCtrl.prototype.editPostAggregatorField = function (index) {
+                    this.addPostAggregatorFieldMode = true;
+                    var delPostAggregatorField = this.target.currentPostAggregator.fields.splice(index, 1);
+                    this.target.currentPostAggregatorField = delPostAggregatorField[0];
                 };
                 DruidQueryCtrl.prototype.isValidFilterType = function (type) {
                     return lodash_1.default.has(this.filterValidators, type);
@@ -289,6 +342,9 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                 };
                 DruidQueryCtrl.prototype.isValidPostAggregatorType = function (type) {
                     return lodash_1.default.has(this.postAggregatorValidators, type);
+                };
+                DruidQueryCtrl.prototype.isValidPostAggregatorFieldType = function (type) {
+                    return lodash_1.default.has(this.postAggregatorFieldValidators, type);
                 };
                 DruidQueryCtrl.prototype.isValidQueryType = function (type) {
                     return lodash_1.default.has(this.queryTypeValidators, type);
@@ -469,17 +525,29 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                         return "Must provide a list of fields for arithmetic post aggregator.";
                     }
                     else {
-                        if (!Array.isArray(target.currentPostAggregator.fields)) {
-                            target.currentPostAggregator.fields = target.currentPostAggregator.fields
-                                .split(",")
-                                .map(function (f) { return f.trim(); })
-                                .map(function (f) { return { type: "fieldAccess", fieldName: f }; });
-                        }
                         if (target.currentPostAggregator.fields.length < 2) {
                             return "Must provide at least two fields for arithmetic post aggregator.";
                         }
                     }
                     return null;
+                };
+                DruidQueryCtrl.prototype.validateFieldAccessPostAggregatorField = function (target) {
+                    if (!target.currentPostAggregatorField.fieldName) {
+                        return "Must provide a fieldName for fieldAccess field type.";
+                    }
+                };
+                DruidQueryCtrl.prototype.validateHyperUniqueCardinalityPostAggregatorField = function (target) {
+                    if (!target.currentPostAggregatorField.fieldName) {
+                        return "Must provide a fieldName for hyperUniqueCardinality field type.";
+                    }
+                };
+                DruidQueryCtrl.prototype.validateConstantPostAggregatorField = function (target) {
+                    if (!target.currentPostAggregatorField.value) {
+                        return "Must provide a value for constant field type.";
+                    }
+                    if (isNaN(Number(target.currentPostAggregatorField.value))) {
+                        return "The value for constant field type must be numeric.";
+                    }
                 };
                 DruidQueryCtrl.prototype.validateTarget = function () {
                     var validatorOut, errs = {};
@@ -541,6 +609,17 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                             validatorOut = this.postAggregatorValidators[this.target.currentPostAggregator.type](this.target);
                             if (validatorOut) {
                                 errs.currentPostAggregator = validatorOut;
+                            }
+                        }
+                    }
+                    if (this.addPostAggregatorFieldMode) {
+                        if (!this.isValidPostAggregatorFieldType(this.target.currentPostAggregatorField.type)) {
+                            errs.currentPostAggregatorField = "Invalid post aggregator field type: " + this.target.currentPostAggregatorField.type + ".";
+                        }
+                        else {
+                            validatorOut = this.postAggregatorFieldValidators[this.target.currentPostAggregatorField.type](this.target);
+                            if (validatorOut) {
+                                errs.currentPostAggregatorField = validatorOut;
                             }
                         }
                     }
