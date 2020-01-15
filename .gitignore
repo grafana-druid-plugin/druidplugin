@@ -4,3 +4,5 @@ npm-debug.log
 .vscode
 .tscache
 .idea/
+package-lock.json
+dist

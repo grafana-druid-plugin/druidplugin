@@ -44,6 +44,18 @@ export class DruidQueryCtrl extends QueryCtrl {
     "cardinality": _.partial(this.validateCardinalityAggregator.bind(this), 'cardinality'),
     "longSum": _.partial(this.validateSimpleAggregator.bind(this), 'longSum'),
     "doubleSum": _.partial(this.validateSimpleAggregator.bind(this), 'doubleSum'),
+    "floatSum": _.partial(this.validateSimpleAggregator.bind(this), 'floatSum'),
+    "longMin": _.partial(this.validateSimpleAggregator.bind(this), 'longMin'),
+    "doubleMin": _.partial(this.validateSimpleAggregator.bind(this), 'doubleMin'),
+    "floatMin": _.partial(this.validateSimpleAggregator.bind(this), 'floatMin'),
+    "longMax": _.partial(this.validateSimpleAggregator.bind(this), 'longMax'),
+    "doubleMax": _.partial(this.validateSimpleAggregator.bind(this), 'doubleMax'),
+    "floatMax": _.partial(this.validateSimpleAggregator.bind(this), 'floatMax'),
+    "longFirst": _.partial(this.validateSimpleAggregator.bind(this), 'longFirst'),
+    "doubleFirst": _.partial(this.validateSimpleAggregator.bind(this), 'doubleFirst'),
+    "floatFirst": _.partial(this.validateSimpleAggregator.bind(this), 'floatFirst'),
+    "stringFirst": _.partial(this.validateSimpleAggregator.bind(this), 'stringFirst'),
+    "stringLast": _.partial(this.validateSimpleAggregator.bind(this), 'stringLast'),
     "approxHistogramFold": this.validateApproxHistogramFoldAggregator.bind(this),
     "hyperUnique": _.partial(this.validateSimpleAggregator.bind(this), 'hyperUnique'),
     "thetaSketch": this.validateThetaSketchAggregator.bind(this)
@@ -55,16 +67,19 @@ export class DruidQueryCtrl extends QueryCtrl {
     "quantile": this.validateQuantilePostAggregator.bind(this)
   };
 
-  arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null };
-  defaultQueryType = "timeseries";
+  arithmeticPostAggregatorFns = { '+': null, '-': null, '*': null, '/': null, 'quotient': null };
+  arithmeticPostAggregatorOrderings = ['null', 'numericFirst'];
+  defaultQueryType = "groupBy";
   defaultFilterType = "selector";
   defaultAggregatorType = "count";
-  defaultPostAggregator = { type: 'arithmetic', 'fn': '+' };
+  defaultPostAggregator = { type: 'arithmetic', 'fn': '+', ordering: 'null' };
   customGranularities = ['second', 'minute', 'fifteen_minute', 'thirty_minute', 'hour', 'day', 'week', 'month', 'quarter', 'year', 'all'];
-  defaultCustomGranularity = 'minute';
+  defaultCustomGranularity = 'hour';
   defaultSelectDimension = "";
   defaultSelectMetric = "";
-  defaultLimit = 5;
+  defaultLimit = 0;
+  defaultThreshold = 10;
+  defaultMaxStringBytes = 1024;
 
   /** @ngInject **/
   constructor($scope, $injector, $q) {
@@ -78,7 +93,6 @@ export class DruidQueryCtrl extends QueryCtrl {
     this.aggregatorTypes = _.keys(this.aggregatorValidators);
     this.postAggregatorTypes = _.keys(this.postAggregatorValidators);
     this.arithmeticPostAggregator = _.keys(this.arithmeticPostAggregatorFns);
-    this.customGranularity = this.customGranularities;
 
     this.errors = this.validateTarget();
     if (!this.target.currentFilter) {
@@ -105,6 +119,14 @@ export class DruidQueryCtrl extends QueryCtrl {
 
     if (!this.target.limit) {
       this.target.limit = this.defaultLimit;
+    }
+
+    if (!this.target.threshold) {
+      this.target.threshold = this.defaultThreshold;
+    }
+
+    if (!this.target.maxStringBytes) {
+      this.target.maxStringBytes = this.defaultMaxStringBytes;
     }
 
     // needs to be defined here as it is called from typeahead
@@ -287,6 +309,7 @@ export class DruidQueryCtrl extends QueryCtrl {
     const delAggregator = this.target.aggregators.splice(index, 1);
     this.target.currentAggregator = delAggregator[0];
   }
+
   removeAggregator(index) {
     this.target.aggregators.splice(index, 1);
     this.targetBlur();
@@ -319,13 +342,19 @@ export class DruidQueryCtrl extends QueryCtrl {
     this.targetBlur();
   }
 
+  editPostAggregator(index) {
+    this.addPostAggregatorMode = true;
+    const delPostAggregator = this.target.postAggregators.splice(index, 1);
+    this.target.currentPostAggregator = delPostAggregator[0];
+  }
+
   removePostAggregator(index) {
     this.target.postAggregators.splice(index, 1);
     this.targetBlur();
   }
 
   clearCurrentPostAggregator() {
-    this.target.currentPostAggregator = _.clone(this.defaultPostAggregator);;
+    this.target.currentPostAggregator = _.clone(this.defaultPostAggregator);
     this.addPostAggregatorMode = false;
     this.targetBlur();
   }
@@ -363,16 +392,30 @@ export class DruidQueryCtrl extends QueryCtrl {
   }
 
   validateLimit(target, errs) {
-    if (!target.limit) {
+    if (target.limit == undefined) {
       errs.limit = "Must specify a limit";
       return false;
     }
     const intLimit = parseInt(target.limit);
     if (isNaN(intLimit)) {
-      errs.limit = "Limit must be a integer";
+      errs.limit = "Limit must be an integer";
       return false;
     }
     target.limit = intLimit;
+    return true;
+  }
+
+  validateThreshold(target, errs) {
+    if (target.threshold == undefined) {
+      errs.threshold = "Must specify a threshold";
+      return false;
+    }
+    const intThreshold = parseInt(target.threshold);
+    if (isNaN(intThreshold)) {
+      errs.threshold = "Threshold must be an integer";
+      return false;
+    }
+    target.threshold = intThreshold;
     return true;
   }
 
@@ -406,7 +449,7 @@ export class DruidQueryCtrl extends QueryCtrl {
       errs.druidMetric = "Must specify a metric";
       return false;
     }
-    if (!this.validateLimit(target, errs)) {
+    if (!this.validateThreshold(target, errs)) {
       return false;
     }
     return true;
@@ -435,7 +478,7 @@ export class DruidQueryCtrl extends QueryCtrl {
     if (!target.currentFilter.dimension) {
       return "Must provide dimension name for javascript filter.";
     }
-    if (!target.currentFilter["function"]) {
+    if (!target.currentFilter.function) {
       return "Must provide func value for javascript filter.";
     }
     return null;
@@ -533,11 +576,11 @@ export class DruidQueryCtrl extends QueryCtrl {
     if (!this.isValidArithmeticPostAggregatorFn(target.currentPostAggregator.fn)) {
       return "Invalid arithmetic function";
     }
-    if (!target.currentPostAggregator.fields) {
+    if (!target.currentPostAggregator.fieldNames) {
       return "Must provide a list of fields for arithmetic post aggregator.";
     } else {
-      if (!Array.isArray(target.currentPostAggregator.fields)) {
-        target.currentPostAggregator.fields = target.currentPostAggregator.fields
+      if (!Array.isArray(target.currentPostAggregator.fieldNames)) {
+        target.currentPostAggregator.fields = target.currentPostAggregator.fieldNames
           .split(",")
           .map(function (f) { return f.trim(); })
           .map(function (f) { return { type: "fieldAccess", fieldName: f }; });
@@ -565,7 +608,7 @@ export class DruidQueryCtrl extends QueryCtrl {
 
     if (this.target.shouldOverrideGranularity) {
       if (this.target.customGranularity) {
-        if (!_.includes(this.customGranularity, this.target.customGranularity)) {
+        if (!_.includes(this.customGranularities, this.target.customGranularity)) {
           errs.customGranularity = "Invalid granularity.";
         }
       } else {
