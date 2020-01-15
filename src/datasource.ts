@@ -1,5 +1,6 @@
 ///<reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 
+import angular from 'angular';
 import _ from 'lodash';
 import moment from 'moment';
 import * as dateMath from 'app/core/utils/datemath';
@@ -68,12 +69,12 @@ export default class DruidDatasource {
       //Round up to start of an interval
       //Width of bar chars in Grafana is determined by size of the smallest interval
       const roundedFrom = granularity === "all" ? from : this.roundUpStartTime(from, granularity);
-      if (this.periodGranularity != "") {
+      if (this.periodGranularity !== "") {
         if (granularity === 'day') {
           granularity = { "type": "period", "period": "P1D", "timeZone": this.periodGranularity }
         }
       }
-      return this.doQuery(roundedFrom, to, granularity, target);
+      return this.doQuery(roundedFrom, to, granularity, target, options);
     });
 
     return this.q.all(promises).then(results => {
@@ -81,7 +82,7 @@ export default class DruidDatasource {
     });
   }
 
-  doQuery(from, to, granularity, target) {
+  doQuery(from, to, granularity, target, options) {
     let datasource = target.druidDS;
     let filters = target.filters;
     let aggregators = target.aggregators.map(this.splitCardinalityFields);
@@ -98,35 +99,36 @@ export default class DruidDatasource {
     if (!selectThreshold) {
       selectThreshold = 5;
     }
-
+    
     if (target.queryType === 'topN') {
-      let threshold = target.limit;
+      let threshold = target.threshold;
       let metric = target.druidMetric;
       let dimension = this.templateSrv.replace(target.dimension);
-      promise = this.topNQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, threshold, metric, dimension)
+      promise = this.topNQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, threshold, metric, dimension, options)
         .then(response => {
           return this.convertTopNData(response.data, dimension, metric);
         });
     }
     else if (target.queryType === 'groupBy') {
       limitSpec = this.getLimitSpec(target.limit, target.orderBy);
-      promise = this.groupByQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, groupBy, limitSpec)
+      promise = this.groupByQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, groupBy, limitSpec, options)
         .then(response => {
-          return this.convertGroupByData(response.data, groupBy, metricNames);
+          return this.convertGroupByData(response.data, groupBy, metricNames, target.alias);
         });
     }
     else if (target.queryType === 'select') {
-      promise = this.selectQuery(datasource, intervals, granularity, selectDimensions, selectMetrics, filters, selectThreshold);
+      promise = this.selectQuery(datasource, intervals, granularity, selectDimensions, selectMetrics, filters, selectThreshold, options);
       return promise.then(response => {
         return this.convertSelectData(response.data);
       });
     }
     else {
-      promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
+      promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators, options)
         .then(response => {
           return this.convertTimeSeriesData(response.data, metricNames);
         });
     }
+
     /*
       At this point the promise will return an list of time series of this form
     [
@@ -150,6 +152,20 @@ export default class DruidDatasource {
           metric.datapoints[0][1] = fromMs;
         }
       });
+
+      if (target.isRate) {
+        // Compute rate of change
+        metrics.forEach(metric => {
+          let derivative = [];
+          for (let i = 1; i < metric.datapoints.length; i++) {
+            // [(v2 - v1) / (t2 - t1), t2]
+            let p = [(metric.datapoints[i][0]-metric.datapoints[i-1][0]) / ((metric.datapoints[i][1]-metric.datapoints[i-1][1]) / 1000), metric.datapoints[i][1]];
+            derivative.push(p);
+          }
+          metric.datapoints = derivative;
+        });
+      }
+
       return metrics;
     });
   };
@@ -163,7 +179,7 @@ export default class DruidDatasource {
 
   selectQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
               dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>,
-              selectThreshold: Object) {
+              selectThreshold: Object, options) {
     let query: Druid.DruidSelectQuery = {
       "queryType": "select",
       "dataSource": datasource,
@@ -175,14 +191,14 @@ export default class DruidDatasource {
     };
 
     if (filters && filters.length > 0) {
-      query.filter = this.buildFilterTree(filters);
+      query.filter = this.buildFilterTree(filters, options);
     }
 
     return this.druidQuery(query);
   };
 
   timeSeriesQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-                  filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object) {
+                  filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, options) {
     let query: Druid.DruidTimeSeriesQuery = {
       queryType: "timeseries",
       dataSource: datasource,
@@ -193,7 +209,7 @@ export default class DruidDatasource {
     };
 
     if (filters && filters.length > 0) {
-      query.filter = this.buildFilterTree(filters);
+      query.filter = this.buildFilterTree(filters, options);
     }
 
     return this.druidQuery(query);
@@ -201,7 +217,7 @@ export default class DruidDatasource {
 
   topNQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
             filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object,
-            threshold: number, metric: string | Object, dimension: string | Object) {
+            threshold: number, metric: string | Object, dimension: string | Object, options) {
     const query: Druid.DruidTopNQuery = {
       queryType: "topN",
       dataSource: datasource,
@@ -215,7 +231,7 @@ export default class DruidDatasource {
     };
 
     if (filters && filters.length > 0) {
-      query.filter = this.buildFilterTree(filters);
+      query.filter = this.buildFilterTree(filters, options);
     }
 
     return this.druidQuery(query);
@@ -223,7 +239,7 @@ export default class DruidDatasource {
 
   groupByQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
                filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>,
-               limitSpec: Druid.LimitSpec) {
+               limitSpec: Druid.LimitSpec, options) {
     const query: Druid.DruidGroupByQuery = {
       queryType: "groupBy",
       dataSource: datasource,
@@ -236,7 +252,7 @@ export default class DruidDatasource {
     };
 
     if (filters && filters.length > 0) {
-      query.filter = this.buildFilterTree(filters);
+      query.filter = this.buildFilterTree(filters, options);
     }
 
     return this.druidQuery(query);
@@ -251,13 +267,18 @@ export default class DruidDatasource {
     return this.backendSrv.datasourceRequest(options);
   };
 
-  getLimitSpec(limitNum, orderBy) {
-    return {
+  getLimitSpec(limitNum, orderBy): Druid.LimitSpec {
+    const columns = !orderBy ? null : orderBy.map(col => {
+      return { "dimension": col, "direction": "DESCENDING" };
+    });
+    // If limitNum equals 0, ignore the limit field (value 0 means no data points limit)
+    return !limitNum ? {
+      "type": "default",
+      "columns": columns
+    } : {
       "type": "default",
       "limit": limitNum,
-      "columns": !orderBy ? null : orderBy.map(col => {
-        return { "dimension": col, "direction": "DESCENDING" };
-      })
+      "columns": columns
     };
   }
 
@@ -275,12 +296,12 @@ export default class DruidDatasource {
   };
 
   getDimensionsAndMetrics(datasource) {
-    return this.get(DRUID_DATASOURCE_PATH + datasource).then(response => {
+    return this.get(DRUID_DATASOURCE_PATH + '/' + datasource).then(response => {
       return response.data;
     });
   };
 
-  getFilterValues(target, panelRange, query) {
+  getFilterValues(target, panelRange, query, options) {
     const topNquery: any = {
       "queryType": "topN",
       "dataSource": target.druidDS,
@@ -294,8 +315,7 @@ export default class DruidDatasource {
 
     let filters = [];
     if (target.filters) {
-      filters =
-        filters = _.cloneDeep(target.filters);
+      filters = _.cloneDeep(target.filters);
     }
     filters.push({
       "type": "search",
@@ -305,7 +325,7 @@ export default class DruidDatasource {
         "value": query
       }
     });
-    topNquery.filter = this.buildFilterTree(filters);
+    topNquery.filter = this.buildFilterTree(filters, options);
 
     return this.druidQuery(topNquery);
   };
@@ -318,10 +338,10 @@ export default class DruidDatasource {
     });
   };
 
-  buildFilterTree(filters): Druid.DruidFilter {
+  buildFilterTree(filters, options): Druid.DruidFilter {
     //Do template variable replacement
     const replacedFilters = filters.map(filter => {
-      return this.replaceTemplateValues(filter, this.filterTemplateExpanders[filter.type]);
+      return this.replaceTemplateValues(filter, this.filterTemplateExpanders[filter.type], options.scopedVars);
     })
       .map(filter => {
         const finalFilter = _.omit(filter, 'negate');
@@ -348,7 +368,7 @@ export default class DruidDatasource {
 
   getMetricNames(aggregators, postAggregators) {
     const displayAggs = _.filter(aggregators, agg => {
-      return agg.type !== 'approxHistogramFold' && agg.hidden != true;
+      return agg.type !== 'approxHistogramFold' && agg.hidden !== true;
     });
     return _.union(_.map(displayAggs, 'name'), _.map(postAggregators, 'name'));
   }
@@ -481,17 +501,34 @@ export default class DruidDatasource {
     });
   }
 
-  convertGroupByData(md, groupBy, metrics) {
+  convertGroupByData(md, groupBy, metrics, alias) {
     const mergedData = md.map(item => {
       /*
         The first map() transforms the list Druid events into a list of objects
         with keys of the form "<groupName>:<metric>" and values
         of the form [metricValue, unixTime]
       */
-      const groupName = this.getGroupName(groupBy, item);
-      const keys = metrics.map(metric => {
-        return groupName + ":" + metric;
-      });
+      let groupName;
+      let keys;
+
+      if (!alias) {
+        groupName = this.getGroupName(groupBy, item);
+        keys = metrics.map(metric => {
+          return groupName + " : " + metric;
+        });
+      } else {
+        // Create groupName from alias
+        const scopedVars = {};
+        _.each(groupBy, value => {
+          scopedVars[value] = { value: item.event[value] };
+        });
+        groupName = this.templateSrv.replace(alias, scopedVars);
+        keys = metrics.map(metric => {
+          scopedVars['metric'] = { value: metric };
+          return this.templateSrv.replace(groupName, scopedVars);
+        });
+      }
+
       const vals = metrics.map(metric => {
         return [
           item.event[metric],
@@ -588,10 +625,169 @@ export default class DruidDatasource {
     return rounded;
   }
 
-  replaceTemplateValues(obj, attrList) {
+  replaceTemplateValues(obj, attrList, scopedVars) {
     const substitutedVals = attrList.map(attr => {
-      return this.templateSrv.replace(obj[attr]);
+      return this.templateSrv.replace(obj[attr], scopedVars, 'pipe');
     });
     return _.assign(_.clone(obj, true), _.zipObject(attrList, substitutedVals));
+  }
+
+  getListOfValues(listOfValues) {
+    let  vals = [];
+    for (let value in listOfValues){
+      vals.push({"text": listOfValues[value]});
+    }
+    return vals;
+  }
+
+  getDataFromColumn(column, result){
+    let vals = [];
+    for (let elem in result){
+      vals.push({"text": result[elem]["event"][column]});
+    }
+    return vals;
+  }
+
+  //Get list of available datasources
+  getListOfDataSources() {
+    return this.getDataSources().then(data => {
+      return this.getListOfValues(data);
+    });
+  }
+
+  getDimensions(datasource) {
+    return this.getDimensionsAndMetrics(datasource).then(data => {
+      return this.getListOfValues(data["dimensions"]);
+    });
+  }
+
+  getColumnData(index: string, column: string, intervals: any= false, filters: any = null): any{
+    // get all distinct element in a colomn
+    let myquery =  {
+      "queryType": "groupBy",
+      "dataSource": index,
+      "granularity": "all",
+      "dimensions": [column]
+    };
+    if (intervals === false){
+        myquery["intervals"] =  [
+            "2000-01-01T00:00Z/3000-01-01T00:00Z"
+        ];
+    } else {
+        let bornMin = new Date(this.templateSrv.replace("$__from")*1).toISOString();
+        let bornMax = new Date(this.templateSrv.replace("$__to")*1).toISOString();
+        myquery["intervals"] =  [
+            bornMin+"/"+bornMax
+        ];
+    }
+    if (filters !== null){
+        myquery['filter'] = this.getFilters(filters);
+    }
+    const options = {
+      method: 'POST',
+      url: this.url + '/druid/v2/',
+      data: myquery
+    };
+    const promise = this.backendSrv.datasourceRequest(options).then(response => {
+          return  this.getDataFromColumn(column, response.data);
+    });
+    return promise;
+  }
+
+  getFilters(filters: any): any {
+      /* generate filters for druid request
+       support multi filters, multi values by filter
+       support grafana variable
+
+       examples:
+
+       "filters": "columnName:value"
+       "filters": "columnName:$value"
+       "filters": "columnName:{value,value,value}"
+       "filters": ["columnName1:$value", "columnName2:$value"]
+       "intervals" key outside filters add current intervals
+
+    */
+    let listOfValue = [];
+    let multiFilters = [];
+    if (typeof filters === 'string' || filters instanceof String) {
+        filters = [filters];
+    }
+    for (let i = 0; i<filters.length; i++){
+        let elem = filters[i];
+        elem = this.templateSrv.replace(elem);
+        let splitValue = elem.split(':');
+        let field = splitValue[0];
+        let value = splitValue[1];
+        if ((value.charAt(0) === '{') && (value.charAt(value.length-1) === '}')){
+            listOfValue = value.slice(1,-1).split(',');
+        } else {
+            listOfValue = [value];
+        }
+        let multiValues = [];
+        for (let j = 0; j < listOfValue.length; j++) {
+            multiValues.push({
+                "type": "selector",
+                "dimension": field,
+                "value": listOfValue[j]
+            });
+        }
+        if (multiValues.length === 1) {
+            multiFilters.push(multiValues[0]);
+        } else {
+            multiFilters.push({
+                "type": "or",
+                "fields" : multiValues
+            });
+        }
+    }
+    return {
+      "type" : "and",
+      "fields": multiFilters
+    }
+}
+
+
+  metricFindQuery(userQuery: any) {
+    /*
+    return all datasources if query is not defined
+    return all dimensions if datasource is defined and column is not
+    return all distinct data if datasource and column are defined
+    support multi columns
+    return all distinct data in current interval if intervals key is set
+    return all distinct data in filters defined as list of attribute and $variables
+    return all distinct data in filters defined as list of attribute: mono or multi fields
+    */
+    if (userQuery === ""){
+        return this.getListOfDataSources();
+    } else {
+        let query = angular.fromJson(userQuery);
+        if (_.isEmpty(query)) {
+            return this.getListOfDataSources();
+        } else {
+            let index = null;
+            let column = null;
+            let intervals = false;
+            let filter = null;
+            if (query.hasOwnProperty('index')){
+                index = query['index'];
+            }
+            if (query.hasOwnProperty('column')){
+                column = query['column'];
+            }
+            if (query.hasOwnProperty('intervals')){
+                intervals = true;
+            }
+            if (query.hasOwnProperty('filters')){
+                filter = query['filters'];
+            }
+
+            if (column === null){
+                return this.getDimensions(index);
+            } else {
+                return this.getColumnData(index, column, intervals, filter);
+                }
+        }
+    }
   }
 }

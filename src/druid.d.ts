@@ -26,7 +26,7 @@ export enum Granularity {
 
 export interface LimitSpec {
   type: 'default';
-  limit: number;
+  limit?: number;
   columns: Array<OrderByColumnSpec>;
 }
 

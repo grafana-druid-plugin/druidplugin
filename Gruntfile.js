@@ -7,8 +7,20 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-ts');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-string-replace');
+  grunt.loadNpmTasks('grunt-tslint')
 
   grunt.initConfig({
+    tslint: {
+      options: {
+        configuration: grunt.file.readJSON("tslint.json")
+      },
+      files: 
+        //all your .ts files
+        [
+          'src/**/*.ts',
+          //'test/**/*.ts',
+        ]
+    },
     clean: ['dist'],
 
     copy: {
@@ -96,6 +108,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default', [
     'clean',
+    'tslint',
     'copy:dist_js',
     'ts',
     'copy:dist_html',
@@ -103,5 +116,10 @@ module.exports = function(grunt) {
     'copy:dist_img',
     'copy:dist_statics',
     'string-replace'
+  ]);
+
+  grunt.registerTask('testing', [
+    'clean',
+    'tslint'
   ]);
 };
