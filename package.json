@@ -1,6 +1,6 @@
 {
-  "name": "paypal-druid-plugin",
-  "version": "4.0.0",
+  "name": "sg-druid-plugin",
+  "version": "1.2.0",
   "description": "Grafana plugin for Druid real-time OLAP database",
   "main": "index.js",
   "scripts": {
@@ -9,25 +9,26 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/grafana-druid-plugin/druidplugin.git"
+    "url": "git+https://sgithub.fr.world.socgen/aabdelka101518/sg-druid-plugin.git"
   },
   "keywords": [
     "Druid"
   ],
-  "author": "Abhishek Sant",
+  "author": "Ahmed Abdelkafi, Olivier Hoarau",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/grafana-druid-plugin/druidplugin/issues"
+    "url": "https://sgithub.fr.world.socgen/aabdelka101518/sg-druid-plugin/issues"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.74",
-    "grafana-sdk-mocks": "github:grafana/grafana-sdk-mocks",
+    "grafana-sdk-mocks": "file:dependencies/grafana-sdk-mocks.tar.gz",
     "grunt": "^1.0.3",
     "grunt-contrib-clean": "^2.0.0",
     "grunt-contrib-copy": "^1.0.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-string-replace": "^1.3",
     "grunt-ts": "^6.0.0-beta.21",
+    "grunt-tslint": "^5.0.2",
     "karma": "^3.0.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-expect": "^1.1.3",
@@ -40,7 +41,9 @@
     "plugin-typescript": "^8.0.0",
     "sinon": "^6.3.1",
     "systemjs-plugin-css": "^0.1.35",
+    "tslint": "^5.20.0",
     "typescript": "^3.0.3"
   },
-  "homepage": "https://github.com/grafana-druid-plugin/druidplugin#readme"
+  "homepage": "https://sgithub.fr.world.socgen/aabdelka101518/sg-druid-plugin#readme",
+  "dependencies": {}
 }

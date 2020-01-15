@@ -1,26 +1,28 @@
 {
   "type": "datasource",
   "name": "Druid",
-  "id": "paypal-druid-datasource",
+  "id": "sg-druid-datasource",
 
   "metrics": true,
+  "annotations": true,
+  "alerting": true,
 
   "info": {
-    "version": "0.0.6",
+    "version": "1.2.0",
     "author": {
-      "name": "Abhishek Sant",
-      "url": "https://github.com/grafana-druid-plugin/druidplugin"
+      "name": "Ahmed Abdelkafi & Olivier Hoarau",
+      "url": "https://sgithub.fr.world.socgen/aabdelka101518/sg-druid-plugin"
     },
    "links":[
-     {"name": "GitHub", "url": "https://github.com/grafana-druid-plugin/druidplugin"}
+      {"name": "SGitHub", "url": "https://sgithub.fr.world.socgen/aabdelka101518/sg-druid-plugin"}
     ],
    "logos": {
       "small": "img/druid_logo.png",
       "large": "img/druid_logo.png"
     },
    "dependencies": {
-     "grafanaVersion": "4.x.x",
-     "plugins": [ ]
+      "grafanaVersion": "<=6.3.0",
+      "plugins": [ ]
     }
   }
 }
