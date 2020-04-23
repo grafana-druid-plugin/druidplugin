@@ -1,4 +1,3 @@
-/// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import * as Druid from 'druid.d';
 export default class DruidDatasource {
     id: number;
@@ -12,10 +11,10 @@ export default class DruidDatasource {
     periodGranularity: any;
     GRANULARITIES: any[][];
     filterTemplateExpanders: {
-        "selector": string[];
-        "regex": string[];
-        "javascript": string[];
-        "search": any[];
+        selector: string[];
+        regex: string[];
+        javascript: string[];
+        search: any[];
     };
     constructor(instanceSettings: any, $q: any, backendSrv: any, templateSrv: any);
     query(options: any): any;
@@ -27,9 +26,9 @@ export default class DruidDatasource {
     groupByQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity, filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>, limitSpec: Druid.LimitSpec): any;
     druidQuery(query: Druid.AbstractDruidQuery): any;
     getLimitSpec(limitNum: any, orderBy: any): {
-        "type": string;
-        "limit": any;
-        "columns": any;
+        type: string;
+        limit: any;
+        columns: any;
     };
     testDatasource(): any;
     getDataSources(): any;

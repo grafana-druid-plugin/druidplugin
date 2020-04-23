@@ -1,4 +1,3 @@
-/// <reference path="../node_modules/grafana-sdk-mocks/app/headers/common.d.ts" />
 import { QueryCtrl } from 'app/plugins/sdk';
 import './css/query_editor.css!';
 export declare class DruidQueryCtrl extends QueryCtrl {
@@ -24,30 +23,30 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     target: any;
     datasource: any;
     queryTypeValidators: {
-        "timeseries": any;
-        "groupBy": any;
-        "topN": any;
-        "select": any;
+        timeseries: any;
+        groupBy: any;
+        topN: any;
+        select: any;
     };
     filterValidators: {
-        "selector": any;
-        "regex": any;
-        "javascript": any;
+        selector: any;
+        regex: any;
+        javascript: any;
     };
     aggregatorValidators: {
-        "count": (target: any) => string;
-        "cardinality": any;
-        "longSum": any;
-        "doubleSum": any;
-        "approxHistogramFold": any;
-        "hyperUnique": any;
-        "thetaSketch": any;
+        count: (target: any) => string;
+        cardinality: any;
+        longSum: any;
+        doubleSum: any;
+        approxHistogramFold: any;
+        hyperUnique: any;
+        thetaSketch: any;
     };
     postAggregatorValidators: {
-        "arithmetic": any;
-        "max": any;
-        "min": any;
-        "quantile": any;
+        arithmetic: any;
+        max: any;
+        min: any;
+        quantile: any;
     };
     arithmeticPostAggregatorFns: {
         '+': any;
@@ -60,7 +59,7 @@ export declare class DruidQueryCtrl extends QueryCtrl {
     defaultAggregatorType: string;
     defaultPostAggregator: {
         type: string;
-        'fn': string;
+        fn: string;
     };
     customGranularities: string[];
     defaultCustomGranularity: string;
