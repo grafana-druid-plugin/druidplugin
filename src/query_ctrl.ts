@@ -585,7 +585,6 @@ export class DruidQueryCtrl extends QueryCtrl {
     {
       errs.query = err;
     }
-    console.log(errs);
     return errs;
   }
 }

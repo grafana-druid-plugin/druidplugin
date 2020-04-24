@@ -517,7 +517,6 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     catch (err) {
                         errs.query = err;
                     }
-                    console.log(errs);
                     return errs;
                 };
                 DruidQueryCtrl.templateUrl = 'partials/query.editor.html';

@@ -1,6 +1,6 @@
 {
   "type": "datasource",
-  "name": "Druid",
+  "name": "Druid json",
   "id": "abdolsamad-druid-datasource",
 
   "metrics": true,

@@ -55,14 +55,11 @@ export default class DruidDatasource {
     const from = this.dateToMoment(options.range.from, false);
     const to = this.dateToMoment(options.range.to, true);
     let promises = options.targets.map(target => {
-      console.log("Inside target");
       if (target.hide === true || _.isEmpty(target.druidDS)) {
-        console.log("Inside if");
         const d = this.q.defer();
         d.resolve([]);
         return d.promise;
       }
-      console.log("Outside if");
       const maxDataPointsByResolution = options.maxDataPoints;
       const maxDataPointsByConfig = target.maxDataPoints ? target.maxDataPoints : Number.MAX_VALUE;
       const maxDataPoints = Math.min(maxDataPointsByResolution, maxDataPointsByConfig);
@@ -84,9 +81,7 @@ export default class DruidDatasource {
   }
 
   doQuery(from, to, granularity, target) {
-    console.log(target);
     let partialDruidObject = JSON.parse(target.druidPartialQuery)
-
     let datasource = target.druidDS;
     let filters = partialDruidObject.filter;//target.filters;
     let aggregators = partialDruidObject.aggregations;//target.aggregators.map(this.splitCardinalityFields);
@@ -144,8 +139,6 @@ export default class DruidDatasource {
       if(partialDruidObject.postAggregations){
         samadQuery.postAggregations = partialDruidObject.postAggregations
       }
-      console.log("Samad Query:");
-      console.log(samadQuery)
 
       promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
         .then(response => {

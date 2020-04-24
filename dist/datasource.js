@@ -52,14 +52,11 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                     var from = this.dateToMoment(options.range.from, false);
                     var to = this.dateToMoment(options.range.to, true);
                     var promises = options.targets.map(function (target) {
-                        console.log("Inside target");
                         if (target.hide === true || lodash_1.default.isEmpty(target.druidDS)) {
-                            console.log("Inside if");
                             var d = _this.q.defer();
                             d.resolve([]);
                             return d.promise;
                         }
-                        console.log("Outside if");
                         var maxDataPointsByResolution = options.maxDataPoints;
                         var maxDataPointsByConfig = target.maxDataPoints ? target.maxDataPoints : Number.MAX_VALUE;
                         var maxDataPoints = Math.min(maxDataPointsByResolution, maxDataPointsByConfig);
@@ -78,7 +75,6 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 };
                 DruidDatasource.prototype.doQuery = function (from, to, granularity, target) {
                     var _this = this;
-                    console.log(target);
                     var partialDruidObject = JSON.parse(target.druidPartialQuery);
                     var datasource = target.druidDS;
                     var filters = partialDruidObject.filter;
@@ -134,8 +130,6 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         if (partialDruidObject_1.postAggregations) {
                             samadQuery.postAggregations = partialDruidObject_1.postAggregations;
                         }
-                        console.log("Samad Query:");
-                        console.log(samadQuery);
                         promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
                             .then(function (response) {
                             return _this.convertTimeSeriesData(response.data, metricNames);
