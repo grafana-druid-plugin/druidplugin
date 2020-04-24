@@ -54,13 +54,15 @@ export default class DruidDatasource {
   query(options) {
     const from = this.dateToMoment(options.range.from, false);
     const to = this.dateToMoment(options.range.to, true);
-
     let promises = options.targets.map(target => {
-      if (target.hide === true || _.isEmpty(target.druidDS) || (_.isEmpty(target.aggregators) && target.queryType !== "select")) {
+      console.log("Inside target");
+      if (target.hide === true || _.isEmpty(target.druidDS)) {
+        console.log("Inside if");
         const d = this.q.defer();
         d.resolve([]);
         return d.promise;
       }
+      console.log("Outside if");
       const maxDataPointsByResolution = options.maxDataPoints;
       const maxDataPointsByConfig = target.maxDataPoints ? target.maxDataPoints : Number.MAX_VALUE;
       const maxDataPoints = Math.min(maxDataPointsByResolution, maxDataPointsByConfig);
@@ -83,10 +85,12 @@ export default class DruidDatasource {
 
   doQuery(from, to, granularity, target) {
     console.log(target);
+    let partialDruidObject = JSON.parse(target.druidPartialQuery)
+
     let datasource = target.druidDS;
-    let filters = target.filters;
-    let aggregators = target.aggregators.map(this.splitCardinalityFields);
-    let postAggregators = target.postAggregators;
+    let filters = partialDruidObject.filter;//target.filters;
+    let aggregators = partialDruidObject.aggregations;//target.aggregators.map(this.splitCardinalityFields);
+    let postAggregators = partialDruidObject.postAggregations;//target.postAggregators;
     let groupBy = _.map(target.groupBy, (e) => { return this.templateSrv.replace(e) });
     let limitSpec = null;
     let metricNames = this.getMetricNames(aggregators, postAggregators);
@@ -128,10 +132,18 @@ export default class DruidDatasource {
         queryType: "timeseries",
         dataSource: datasource,
         granularity: granularity,
-        //aggregations: aggregators,
-        //postAggregations: postAggregators,
         intervals: intervals
       };
+      let partialDruidObject = JSON.parse(target.druidPartialQuery)
+      if(partialDruidObject.filter){
+        samadQuery.filter = partialDruidObject.filter
+      }
+      if(partialDruidObject.aggregations){
+        samadQuery.aggregations = partialDruidObject.aggregations
+      }
+      if(partialDruidObject.postAggregations){
+        samadQuery.postAggregations = partialDruidObject.postAggregations
+      }
       console.log("Samad Query:");
       console.log(samadQuery)
 

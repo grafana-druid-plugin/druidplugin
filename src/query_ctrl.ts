@@ -579,44 +579,13 @@ export class DruidQueryCtrl extends QueryCtrl {
     } else {
       this.validateMaxDataPoints(this.target, errs);
     }
-
-    if (this.addFilterMode) {
-      if (!this.isValidFilterType(this.target.currentFilter.type)) {
-        errs.currentFilter = "Invalid filter type: " + this.target.currentFilter.type + ".";
-      } else {
-        validatorOut = this.filterValidators[this.target.currentFilter.type](this.target);
-        if (validatorOut) {
-          errs.currentFilter = validatorOut;
-        }
-      }
+    try{
+      let jsonDruidQuery = JSON.parse(this.target.druidPartialQuery)
+    }catch(err)
+    {
+      errs.query = err;
     }
-
-    if (this.addAggregatorMode) {
-      if (!this.isValidAggregatorType(this.target.currentAggregator.type)) {
-        errs.currentAggregator = "Invalid aggregator type: " + this.target.currentAggregator.type + ".";
-      } else {
-        validatorOut = this.aggregatorValidators[this.target.currentAggregator.type](this.target);
-        if (validatorOut) {
-          errs.currentAggregator = validatorOut;
-        }
-      }
-    }
-
-    if (_.isEmpty(this.target.aggregators) && !_.isEqual(this.target.queryType, "select")) {
-      errs.aggregators = "You must supply at least one aggregator";
-    }
-
-    if (this.addPostAggregatorMode) {
-      if (!this.isValidPostAggregatorType(this.target.currentPostAggregator.type)) {
-        errs.currentPostAggregator = "Invalid post aggregator type: " + this.target.currentPostAggregator.type + ".";
-      } else {
-        validatorOut = this.postAggregatorValidators[this.target.currentPostAggregator.type](this.target);
-        if (validatorOut) {
-          errs.currentPostAggregator = validatorOut;
-        }
-      }
-    }
-
+    console.log(errs);
     return errs;
   }
 }
