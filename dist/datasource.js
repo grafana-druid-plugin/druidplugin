@@ -75,6 +75,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 };
                 DruidDatasource.prototype.doQuery = function (from, to, granularity, target) {
                     var _this = this;
+                    console.log(target);
                     var datasource = target.druidDS;
                     var filters = target.filters;
                     var aggregators = target.aggregators.map(this.splitCardinalityFields);
@@ -113,6 +114,14 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         });
                     }
                     else {
+                        var samadQuery = {
+                            queryType: "timeseries",
+                            dataSource: datasource,
+                            granularity: granularity,
+                            intervals: intervals
+                        };
+                        console.log("Samad Query:");
+                        console.log(samadQuery);
                         promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
                             .then(function (response) {
                             return _this.convertTimeSeriesData(response.data, metricNames);

@@ -82,6 +82,7 @@ export default class DruidDatasource {
   }
 
   doQuery(from, to, granularity, target) {
+    console.log(target);
     let datasource = target.druidDS;
     let filters = target.filters;
     let aggregators = target.aggregators.map(this.splitCardinalityFields);
@@ -122,6 +123,18 @@ export default class DruidDatasource {
       });
     }
     else {
+
+      let samadQuery: Druid.DruidTimeSeriesQuery = {
+        queryType: "timeseries",
+        dataSource: datasource,
+        granularity: granularity,
+        //aggregations: aggregators,
+        //postAggregations: postAggregators,
+        intervals: intervals
+      };
+      console.log("Samad Query:");
+      console.log(samadQuery)
+
       promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
         .then(response => {
           return this.convertTimeSeriesData(response.data, metricNames);

@@ -69,6 +69,11 @@ export class DruidQueryCtrl extends QueryCtrl {
   /** @ngInject **/
   constructor($scope, $injector, $q) {
     super($scope, $injector);
+    
+    if(!this.target.druidPartialQuery) {
+      this.target.druidPartialQuery = "{}";
+    }
+
     if (!this.target.queryType) {
       this.target.queryType = this.defaultQueryType;
     }

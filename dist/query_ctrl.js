@@ -67,6 +67,9 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     _this.defaultSelectDimension = "";
                     _this.defaultSelectMetric = "";
                     _this.defaultLimit = 5;
+                    if (!_this.target.druidPartialQuery) {
+                        _this.target.druidPartialQuery = "{}";
+                    }
                     if (!_this.target.queryType) {
                         _this.target.queryType = _this.defaultQueryType;
                     }
