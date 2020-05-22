@@ -81,7 +81,9 @@ export default class DruidDatasource {
   }
 
   doQuery(from, to, granularity, target) {
-    let partialDruidObject = JSON.parse(target.druidPartialQuery)
+    let partialDruidObjectVariabled = JSON.parse(target.druidPartialQuery);
+    let partialDruidObject = this.replaceVariables(partialDruidObjectVariabled);
+
     let datasource = target.druidDS;
     let filters = partialDruidObject.filter;//target.filters;
     let aggregators = partialDruidObject.aggregations;//target.aggregators.map(this.splitCardinalityFields);
@@ -130,13 +132,13 @@ export default class DruidDatasource {
         intervals: intervals
       };
       let partialDruidObject = JSON.parse(target.druidPartialQuery)
-      if(partialDruidObject.filter){
+      if (partialDruidObject.filter) {
         samadQuery.filter = partialDruidObject.filter
       }
-      if(partialDruidObject.aggregations){
+      if (partialDruidObject.aggregations) {
         samadQuery.aggregations = partialDruidObject.aggregations
       }
-      if(partialDruidObject.postAggregations){
+      if (partialDruidObject.postAggregations) {
         samadQuery.postAggregations = partialDruidObject.postAggregations
       }
 
@@ -171,7 +173,26 @@ export default class DruidDatasource {
       return metrics;
     });
   };
-
+  replaceVariables(obj):any {
+    let result = {};
+    for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (typeof (obj[key]) == "object") {
+          if(Array.isArray(obj[key])){
+            result[key] = obj[key].map(item=>this.replaceVariables(item))
+          }else{
+            result[key] = this.replaceVariables(obj[key]);
+          }
+        } else if (typeof (obj[key]) == "string") {
+          result[key] = this.templateSrv.replace(obj[key]);
+          console.log("before: "+obj[key]+" After: "+result[key])
+        }else{
+          result[key] = obj[key];
+        }
+      }
+    }
+    return result;
+  }
   splitCardinalityFields(aggregator) {
     if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
       aggregator.fieldNames = aggregator.fieldNames.split(',')
@@ -180,8 +201,8 @@ export default class DruidDatasource {
   }
 
   selectQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-              dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>,
-              selectThreshold: Object) {
+    dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>,
+    selectThreshold: Object) {
     let query: Druid.DruidSelectQuery = {
       "queryType": "select",
       "dataSource": datasource,
@@ -200,7 +221,7 @@ export default class DruidDatasource {
   };
 
   timeSeriesQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-                  filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object) {
+    filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object) {
     let query: Druid.DruidTimeSeriesQuery = {
       queryType: "timeseries",
       dataSource: datasource,
@@ -218,8 +239,8 @@ export default class DruidDatasource {
   };
 
   topNQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-            filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object,
-            threshold: number, metric: string | Object, dimension: string | Object) {
+    filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object,
+    threshold: number, metric: string | Object, dimension: string | Object) {
     const query: Druid.DruidTopNQuery = {
       queryType: "topN",
       dataSource: datasource,
@@ -240,8 +261,8 @@ export default class DruidDatasource {
   };
 
   groupByQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-               filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>,
-               limitSpec: Druid.LimitSpec) {
+    filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>,
+    limitSpec: Druid.LimitSpec) {
     const query: Druid.DruidGroupByQuery = {
       queryType: "groupBy",
       dataSource: datasource,
