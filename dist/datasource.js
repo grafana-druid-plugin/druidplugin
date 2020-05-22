@@ -75,7 +75,8 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 };
                 DruidDatasource.prototype.doQuery = function (from, to, granularity, target) {
                     var _this = this;
-                    var partialDruidObject = JSON.parse(target.druidPartialQuery);
+                    var partialDruidObjectVariabled = JSON.parse(target.druidPartialQuery);
+                    var partialDruidObject = this.replaceVariables(partialDruidObjectVariabled);
                     var datasource = target.druidDS;
                     var filters = partialDruidObject.filter;
                     var aggregators = partialDruidObject.aggregations;
@@ -146,12 +147,37 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                     });
                 };
                 ;
+                DruidDatasource.prototype.replaceVariables = function (obj) {
+                    var _this = this;
+                    var result = {};
+                    for (var key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            if (typeof (obj[key]) == "object") {
+                                if (Array.isArray(obj[key])) {
+                                    result[key] = obj[key].map(function (item) { return _this.replaceVariables(item); });
+                                }
+                                else {
+                                    result[key] = this.replaceVariables(obj[key]);
+                                }
+                            }
+                            else if (typeof (obj[key]) == "string") {
+                                result[key] = this.templateSrv.replace(obj[key]);
+                            }
+                            else {
+                                result[key] = obj[key];
+                            }
+                        }
+                    }
+                    return result;
+                };
+                ;
                 DruidDatasource.prototype.splitCardinalityFields = function (aggregator) {
                     if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
                         aggregator.fieldNames = aggregator.fieldNames.split(',');
                     }
                     return aggregator;
                 };
+                ;
                 DruidDatasource.prototype.selectQuery = function (datasource, intervals, granularity, dimensions, metric, filters, selectThreshold) {
                     var query = {
                         "queryType": "select",
@@ -177,8 +203,8 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         postAggregations: postAggregators,
                         intervals: intervals
                     };
-                    if (filters && filters.length > 0) {
-                        query.filter = this.buildFilterTree(filters);
+                    if (filters && Object.keys(filters).length > 0) {
+                        query.filter = filters;
                     }
                     return this.druidQuery(query);
                 };

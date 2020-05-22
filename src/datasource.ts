@@ -124,7 +124,6 @@ export default class DruidDatasource {
       });
     }
     else {
-
       let samadQuery: Druid.DruidTimeSeriesQuery = {
         queryType: "timeseries",
         dataSource: datasource,
@@ -141,7 +140,7 @@ export default class DruidDatasource {
       if (partialDruidObject.postAggregations) {
         samadQuery.postAggregations = partialDruidObject.postAggregations
       }
-
+      
       promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
         .then(response => {
           return this.convertTimeSeriesData(response.data, metricNames);
@@ -185,20 +184,19 @@ export default class DruidDatasource {
           }
         } else if (typeof (obj[key]) == "string") {
           result[key] = this.templateSrv.replace(obj[key]);
-          console.log("before: "+obj[key]+" After: "+result[key])
         }else{
           result[key] = obj[key];
         }
       }
     }
     return result;
-  }
+  };
   splitCardinalityFields(aggregator) {
     if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
       aggregator.fieldNames = aggregator.fieldNames.split(',')
     }
     return aggregator;
-  }
+  };
 
   selectQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
     dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>,
@@ -221,7 +219,7 @@ export default class DruidDatasource {
   };
 
   timeSeriesQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
-    filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object) {
+    filters: Object, aggregators: Object, postAggregators: Object) {
     let query: Druid.DruidTimeSeriesQuery = {
       queryType: "timeseries",
       dataSource: datasource,
@@ -231,10 +229,9 @@ export default class DruidDatasource {
       intervals: intervals
     };
 
-    if (filters && filters.length > 0) {
-      query.filter = this.buildFilterTree(filters);
+    if (filters && Object.keys(filters).length > 0) {
+      query.filter = filters;
     }
-
     return this.druidQuery(query);
   };
 
