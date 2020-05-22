@@ -52,7 +52,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                     var from = this.dateToMoment(options.range.from, false);
                     var to = this.dateToMoment(options.range.to, true);
                     var promises = options.targets.map(function (target) {
-                        if (target.hide === true || lodash_1.default.isEmpty(target.druidDS) || (lodash_1.default.isEmpty(target.aggregators) && target.queryType !== "select")) {
+                        if (target.hide === true || lodash_1.default.isEmpty(target.druidDS)) {
                             var d = _this.q.defer();
                             d.resolve([]);
                             return d.promise;
@@ -75,10 +75,12 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 };
                 DruidDatasource.prototype.doQuery = function (from, to, granularity, target) {
                     var _this = this;
+                    var partialDruidObjectVariabled = JSON.parse(target.druidPartialQuery);
+                    var partialDruidObject = this.replaceVariables(partialDruidObjectVariabled);
                     var datasource = target.druidDS;
-                    var filters = target.filters;
-                    var aggregators = target.aggregators.map(this.splitCardinalityFields);
-                    var postAggregators = target.postAggregators;
+                    var filters = partialDruidObject.filter;
+                    var aggregators = partialDruidObject.aggregations;
+                    var postAggregators = partialDruidObject.postAggregations;
                     var groupBy = lodash_1.default.map(target.groupBy, function (e) { return _this.templateSrv.replace(e); });
                     var limitSpec = null;
                     var metricNames = this.getMetricNames(aggregators, postAggregators);
@@ -113,6 +115,22 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         });
                     }
                     else {
+                        var samadQuery = {
+                            queryType: "timeseries",
+                            dataSource: datasource,
+                            granularity: granularity,
+                            intervals: intervals
+                        };
+                        var partialDruidObject_1 = JSON.parse(target.druidPartialQuery);
+                        if (partialDruidObject_1.filter) {
+                            samadQuery.filter = partialDruidObject_1.filter;
+                        }
+                        if (partialDruidObject_1.aggregations) {
+                            samadQuery.aggregations = partialDruidObject_1.aggregations;
+                        }
+                        if (partialDruidObject_1.postAggregations) {
+                            samadQuery.postAggregations = partialDruidObject_1.postAggregations;
+                        }
                         promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
                             .then(function (response) {
                             return _this.convertTimeSeriesData(response.data, metricNames);
@@ -129,12 +147,37 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                     });
                 };
                 ;
+                DruidDatasource.prototype.replaceVariables = function (obj) {
+                    var _this = this;
+                    var result = {};
+                    for (var key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            if (typeof (obj[key]) == "object") {
+                                if (Array.isArray(obj[key])) {
+                                    result[key] = obj[key].map(function (item) { return _this.replaceVariables(item); });
+                                }
+                                else {
+                                    result[key] = this.replaceVariables(obj[key]);
+                                }
+                            }
+                            else if (typeof (obj[key]) == "string") {
+                                result[key] = this.templateSrv.replace(obj[key]);
+                            }
+                            else {
+                                result[key] = obj[key];
+                            }
+                        }
+                    }
+                    return result;
+                };
+                ;
                 DruidDatasource.prototype.splitCardinalityFields = function (aggregator) {
                     if (aggregator.type === 'cardinality' && typeof aggregator.fieldNames === 'string') {
                         aggregator.fieldNames = aggregator.fieldNames.split(',');
                     }
                     return aggregator;
                 };
+                ;
                 DruidDatasource.prototype.selectQuery = function (datasource, intervals, granularity, dimensions, metric, filters, selectThreshold) {
                     var query = {
                         "queryType": "select",
@@ -160,8 +203,8 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         postAggregations: postAggregators,
                         intervals: intervals
                     };
-                    if (filters && filters.length > 0) {
-                        query.filter = this.buildFilterTree(filters);
+                    if (filters && Object.keys(filters).length > 0) {
+                        query.filter = filters;
                     }
                     return this.druidQuery(query);
                 };

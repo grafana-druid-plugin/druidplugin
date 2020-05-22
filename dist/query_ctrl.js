@@ -6,7 +6,7 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                 ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
                 function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
             return extendStatics(d, b);
-        }
+        };
         return function (d, b) {
             extendStatics(d, b);
             function __() { this.constructor = d; }
@@ -67,6 +67,9 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     _this.defaultSelectDimension = "";
                     _this.defaultSelectMetric = "";
                     _this.defaultLimit = 5;
+                    if (!_this.target.druidPartialQuery) {
+                        _this.target.druidPartialQuery = "{}";
+                    }
                     if (!_this.target.queryType) {
                         _this.target.queryType = _this.defaultQueryType;
                     }
@@ -508,41 +511,11 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     else {
                         this.validateMaxDataPoints(this.target, errs);
                     }
-                    if (this.addFilterMode) {
-                        if (!this.isValidFilterType(this.target.currentFilter.type)) {
-                            errs.currentFilter = "Invalid filter type: " + this.target.currentFilter.type + ".";
-                        }
-                        else {
-                            validatorOut = this.filterValidators[this.target.currentFilter.type](this.target);
-                            if (validatorOut) {
-                                errs.currentFilter = validatorOut;
-                            }
-                        }
+                    try {
+                        var jsonDruidQuery = JSON.parse(this.target.druidPartialQuery);
                     }
-                    if (this.addAggregatorMode) {
-                        if (!this.isValidAggregatorType(this.target.currentAggregator.type)) {
-                            errs.currentAggregator = "Invalid aggregator type: " + this.target.currentAggregator.type + ".";
-                        }
-                        else {
-                            validatorOut = this.aggregatorValidators[this.target.currentAggregator.type](this.target);
-                            if (validatorOut) {
-                                errs.currentAggregator = validatorOut;
-                            }
-                        }
-                    }
-                    if (lodash_1.default.isEmpty(this.target.aggregators) && !lodash_1.default.isEqual(this.target.queryType, "select")) {
-                        errs.aggregators = "You must supply at least one aggregator";
-                    }
-                    if (this.addPostAggregatorMode) {
-                        if (!this.isValidPostAggregatorType(this.target.currentPostAggregator.type)) {
-                            errs.currentPostAggregator = "Invalid post aggregator type: " + this.target.currentPostAggregator.type + ".";
-                        }
-                        else {
-                            validatorOut = this.postAggregatorValidators[this.target.currentPostAggregator.type](this.target);
-                            if (validatorOut) {
-                                errs.currentPostAggregator = validatorOut;
-                            }
-                        }
+                    catch (err) {
+                        errs.query = err;
                     }
                     return errs;
                 };
