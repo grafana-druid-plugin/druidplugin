@@ -3,7 +3,7 @@ export interface AbstractDruidQuery {
   intervals: Array<string>;
   granularity: Granularity;
   queryType: string;
-  filter?: DruidFilter;
+  filter?: Object;
   aggregations?: Object;
   postAggregations?: Object;
   context?: Object;
