@@ -11,18 +11,12 @@
 
 # Grafana plugin for [Druid](http://druid.io/) real-time OLAP database
 
-<<<<<<< Updated upstream
-![Screenshot](https://raw.githubusercontent.com/abdolsamad/druidplugin/master/img/AddDataSource.png)
-![Screenshot](https://raw.githubusercontent.com/abdolsamad/druidplugin/master/img/ListDataSource.png)
-![Screenshot](https://raw.githubusercontent.com/abdolsamad/druidplugin/master/img/DruidPanel.png)
-=======
   
 
 ![Screenshot](https://raw.githubusercontent.com/grafana-druid-plugin/druidplugin/master/img/AddDataSource.png)
 
 
 ![Screenshot](https://raw.githubusercontent.com/grafana-druid-plugin/druidplugin/master/img/DruidPanel.png)
->>>>>>> Stashed changes
 
   
 
