@@ -188,8 +188,8 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         "metrics": metric,
                         "intervals": intervals
                     };
-                    if (filters && filters.length > 0) {
-                        query.filter = this.buildFilterTree(filters);
+                    if (filters && Object.keys(filters).length > 0) {
+                        query.filter = filters;
                     }
                     return this.druidQuery(query);
                 };
@@ -221,8 +221,8 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         postAggregations: postAggregators,
                         intervals: intervals
                     };
-                    if (filters && filters.length > 0) {
-                        query.filter = this.buildFilterTree(filters);
+                    if (filters && Object.keys(filters).length > 0) {
+                        query.filter = filters;
                     }
                     return this.druidQuery(query);
                 };
@@ -238,8 +238,8 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                         intervals: intervals,
                         limitSpec: limitSpec,
                     };
-                    if (filters && filters.length > 0) {
-                        query.filter = this.buildFilterTree(filters);
+                    if (filters && Object.keys(filters).length > 0) {
+                        query.filter = filters;
                     }
                     return this.druidQuery(query);
                 };

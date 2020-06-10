@@ -211,8 +211,8 @@ export default class DruidDatasource {
       "intervals": intervals
     };
 
-    if (filters && filters.length > 0) {
-      query.filter = this.buildFilterTree(filters);
+    if (filters && Object.keys(filters).length > 0) {
+      query.filter = filters;
     }
 
     return this.druidQuery(query);
@@ -249,9 +249,8 @@ export default class DruidDatasource {
       postAggregations: postAggregators,
       intervals: intervals
     };
-
-    if (filters && filters.length > 0) {
-      query.filter = this.buildFilterTree(filters);
+    if (filters && Object.keys(filters).length > 0) {
+      query.filter = filters;
     }
 
     return this.druidQuery(query);
@@ -271,8 +270,8 @@ export default class DruidDatasource {
       limitSpec: limitSpec,
     };
 
-    if (filters && filters.length > 0) {
-      query.filter = this.buildFilterTree(filters);
+    if (filters && Object.keys(filters).length > 0) {
+      query.filter = filters;
     }
 
     return this.druidQuery(query);
