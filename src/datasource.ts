@@ -174,6 +174,9 @@ export default class DruidDatasource {
   };
   replaceVariables(obj):any {
     let result = {};
+    if(typeof (obj) == "string"){
+      return this.templateSrv.replace(obj);
+    }
     for (let key in obj) {
       if (obj.hasOwnProperty(key)) {
         if (typeof (obj[key]) == "object") {

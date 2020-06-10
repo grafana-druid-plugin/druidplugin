@@ -150,6 +150,9 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                 DruidDatasource.prototype.replaceVariables = function (obj) {
                     var _this = this;
                     var result = {};
+                    if (typeof (obj) == "string") {
+                        return this.templateSrv.replace(obj);
+                    }
                     for (var key in obj) {
                         if (obj.hasOwnProperty(key)) {
                             if (typeof (obj[key]) == "object") {
