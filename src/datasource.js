@@ -299,7 +299,7 @@ function (angular, _, dateMath, moment) {
 
     this._druidQuery = function (query) {
       if (this.queryTimeout != null) {
-        query.context = {};
+        query.context ||= {}
         query.context.timeout = this.queryTimeout;
       }
 
