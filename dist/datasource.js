@@ -141,6 +141,7 @@ function (angular, _, dateMath, moment) {
       var dataSource = this;
       var from = dateToMoment(options.range.from, false);
       var to = dateToMoment(options.range.to, true);
+      var timeZone = options.timeZone;
 
       console.log("Do query");
       console.log(options);
@@ -159,9 +160,9 @@ function (angular, _, dateMath, moment) {
         //Round up to start of an interval
         //Width of bar chars in Grafana is determined by size of the smallest interval
         var roundedFrom = granularity === "all" ? from : roundUpStartTime(from, granularity);
-        if(dataSource.periodGranularity!=""){
+        if(timeZone!=""){
             if(granularity==='day'){
-                granularity = {"type": "period", "period": "P1D", "timeZone": dataSource.periodGranularity}
+                granularity = {"type": "period", "period": "P1D", "timeZone": timeZone}
             }
         }
         return dataSource._doQuery(roundedFrom, to, granularity, target, options.scopedVars);
