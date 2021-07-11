@@ -78,6 +78,9 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
                     var partialDruidObjectVariabled = JSON.parse(target.druidPartialQuery);
                     var partialDruidObject = this.replaceVariables(partialDruidObjectVariabled);
                     var datasource = target.druidDS;
+                    if (partialDruidObject.hasOwnProperty("dataSource")) {
+                        datasource = partialDruidObject.dataSource;
+                    }
                     var filters = partialDruidObject.filter;
                     var aggregators = partialDruidObject.aggregations;
                     var postAggregators = partialDruidObject.postAggregations;

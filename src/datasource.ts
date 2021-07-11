@@ -85,6 +85,10 @@ export default class DruidDatasource {
     let partialDruidObject = this.replaceVariables(partialDruidObjectVariabled);
 
     let datasource = target.druidDS;
+    if (partialDruidObject.hasOwnProperty("dataSource")) {
+      datasource = partialDruidObject.dataSource
+    }
+
     let filters = partialDruidObject.filter;//target.filters;
     let aggregators = partialDruidObject.aggregations;//target.aggregators.map(this.splitCardinalityFields);
     let postAggregators = partialDruidObject.postAggregations;//target.postAggregators;
@@ -140,7 +144,7 @@ export default class DruidDatasource {
       if (partialDruidObject.postAggregations) {
         samadQuery.postAggregations = partialDruidObject.postAggregations
       }
-      
+
       promise = this.timeSeriesQuery(datasource, intervals, granularity, filters, aggregators, postAggregators)
         .then(response => {
           return this.convertTimeSeriesData(response.data, metricNames);
@@ -172,22 +176,22 @@ export default class DruidDatasource {
       return metrics;
     });
   };
-  replaceVariables(obj):any {
+  replaceVariables(obj): any {
     let result = {};
-    if(typeof (obj) == "string"){
+    if (typeof (obj) == "string") {
       return this.templateSrv.replace(obj);
     }
     for (let key in obj) {
       if (obj.hasOwnProperty(key)) {
         if (typeof (obj[key]) == "object") {
-          if(Array.isArray(obj[key])){
-            result[key] = obj[key].map(item=>this.replaceVariables(item))
-          }else{
+          if (Array.isArray(obj[key])) {
+            result[key] = obj[key].map(item => this.replaceVariables(item))
+          } else {
             result[key] = this.replaceVariables(obj[key]);
           }
         } else if (typeof (obj[key]) == "string") {
           result[key] = this.templateSrv.replace(obj[key]);
-        }else{
+        } else {
           result[key] = obj[key];
         }
       }
@@ -201,7 +205,7 @@ export default class DruidDatasource {
     return aggregator;
   };
 
-  selectQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
+  selectQuery(datasource: string | Object, intervals: Array<string>, granularity: Druid.Granularity,
     dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>,
     selectThreshold: Object) {
     let query: Druid.DruidSelectQuery = {
@@ -221,7 +225,7 @@ export default class DruidDatasource {
     return this.druidQuery(query);
   };
 
-  timeSeriesQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
+  timeSeriesQuery(datasource: string | Object, intervals: Array<string>, granularity: Druid.Granularity,
     filters: Object, aggregators: Object, postAggregators: Object) {
     let query: Druid.DruidTimeSeriesQuery = {
       queryType: "timeseries",
@@ -238,7 +242,7 @@ export default class DruidDatasource {
     return this.druidQuery(query);
   };
 
-  topNQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
+  topNQuery(datasource: string | Object, intervals: Array<string>, granularity: Druid.Granularity,
     filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object,
     threshold: number, metric: string | Object, dimension: string | Object) {
     const query: Druid.DruidTopNQuery = {
@@ -259,7 +263,7 @@ export default class DruidDatasource {
     return this.druidQuery(query);
   };
 
-  groupByQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity,
+  groupByQuery(datasource: string | Object, intervals: Array<string>, granularity: Druid.Granularity,
     filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>,
     limitSpec: Druid.LimitSpec) {
     const query: Druid.DruidGroupByQuery = {

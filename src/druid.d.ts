@@ -1,5 +1,5 @@
 export interface AbstractDruidQuery {
-  dataSource: string;
+  dataSource: string|Object;
   intervals: Array<string>;
   granularity: Granularity;
   queryType: string;

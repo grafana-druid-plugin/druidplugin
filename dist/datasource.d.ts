@@ -21,10 +21,10 @@ export default class DruidDatasource {
     doQuery(from: any, to: any, granularity: any, target: any): any;
     replaceVariables(obj: any): any;
     splitCardinalityFields(aggregator: any): any;
-    selectQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity, dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>, selectThreshold: Object): any;
-    timeSeriesQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity, filters: Object, aggregators: Object, postAggregators: Object): any;
-    topNQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity, filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, threshold: number, metric: string | Object, dimension: string | Object): any;
-    groupByQuery(datasource: string, intervals: Array<string>, granularity: Druid.Granularity, filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>, limitSpec: Druid.LimitSpec): any;
+    selectQuery(datasource: string | Object, intervals: Array<string>, granularity: Druid.Granularity, dimensions: Array<string | Object>, metric: Array<string | Object>, filters: Array<Druid.DruidFilter>, selectThreshold: Object): any;
+    timeSeriesQuery(datasource: string | Object, intervals: Array<string>, granularity: Druid.Granularity, filters: Object, aggregators: Object, postAggregators: Object): any;
+    topNQuery(datasource: string | Object, intervals: Array<string>, granularity: Druid.Granularity, filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, threshold: number, metric: string | Object, dimension: string | Object): any;
+    groupByQuery(datasource: string | Object, intervals: Array<string>, granularity: Druid.Granularity, filters: Array<Druid.DruidFilter>, aggregators: Object, postAggregators: Object, groupBy: Array<string>, limitSpec: Druid.LimitSpec): any;
     druidQuery(query: Druid.AbstractDruidQuery): any;
     getLimitSpec(limitNum: any, orderBy: any): {
         type: string;
