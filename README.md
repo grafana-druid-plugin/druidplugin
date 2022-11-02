@@ -7,6 +7,8 @@ We are working to refresh this codebase. Please see the [milestones](https://git
 
 **Druid plugin 0.0.4 and above are supported for Grafana: 4.x.x**
 
+**For latest versions, see https://github.com/grafadruid/druid-grafana**
+
 # Grafana plugin for [Druid](http://druid.io/) real-time OLAP database
 
 ![Screenshot](https://raw.githubusercontent.com/grafana-druid-plugin/druidplugin/master/img/AddDataSource.png)
