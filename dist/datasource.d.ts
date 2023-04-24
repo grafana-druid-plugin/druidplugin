@@ -37,13 +37,13 @@ export default class DruidDatasource {
     getFilterValues(target: any, panelRange: any, query: any): any;
     get(relativeUrl: any, params?: any): any;
     buildFilterTree(filters: any): Druid.DruidFilter;
-    getQueryIntervals(from: any, to: any): string[];
+    getQueryIntervals(from: any, to: any, wow: any): string[];
     getMetricNames(aggregators: any, postAggregators: any): any;
     formatTimestamp(ts: any): number;
-    convertTimeSeriesData(md: any, metrics: any): any;
+    convertTimeSeriesData(md: any, metrics: any, wow: any, from: any, to: any): any;
     getGroupName(groupBy: any, metric: any): any;
     convertTopNData(md: any, dimension: any, metric: any): any;
-    convertGroupByData(md: any, groupBy: any, metrics: any): any;
+    convertGroupByData(md: any, groupBy: any, metrics: any, wow: any, from: any, to: any): any[];
     convertSelectData(data: any): any;
     dateToMoment(date: any, roundUp: any): any;
     computeGranularity(from: any, to: any, maxDataPoints: any): any;

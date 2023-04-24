@@ -546,6 +546,9 @@ System.register(["lodash", "app/plugins/sdk", "./css/query_editor.css!"], functi
                     }
                     return errs;
                 };
+                DruidQueryCtrl.prototype.isWowApplicable = function () {
+                    return ['groupBy', 'timeseries'].indexOf(this.target.queryType) >= 0;
+                };
                 DruidQueryCtrl.templateUrl = 'partials/query.editor.html';
                 return DruidQueryCtrl;
             }(sdk_1.QueryCtrl));
