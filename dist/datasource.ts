@@ -5,7 +5,7 @@ import moment from 'moment';
 import * as dateMath from 'app/core/utils/datemath';
 import * as Druid from 'druid.d'
 
-const DRUID_DATASOURCE_PATH = '/druid/v2/datasources';
+const DRUID_DATASOURCE_PATH = '/druid/v2/datasources/';
 
 export default class DruidDatasource {
   id: number;

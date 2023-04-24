@@ -15,7 +15,7 @@ System.register(["lodash", "moment", "app/core/utils/datemath"], function (expor
             }
         ],
         execute: function () {
-            DRUID_DATASOURCE_PATH = '/druid/v2/datasources';
+            DRUID_DATASOURCE_PATH = '/druid/v2/datasources/';
             DruidDatasource = (function () {
                 function DruidDatasource(instanceSettings, $q, backendSrv, templateSrv) {
                     this.GRANULARITIES = [
